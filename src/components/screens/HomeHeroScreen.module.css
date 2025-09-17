@@ -4,7 +4,8 @@
   min-height: 100vh;
   /* 明るいクリーム〜スカイの柔らかいグラデーションに変更 */
   background: linear-gradient(180deg, #fffefc 0%, #f5fbff 100%);
-  color: #17202a; /* 明る背景に合わせて本文色をダークに調整 */
+  /* 文字色はリセットして Text コンポーネントの color prop を優先させる */
+  color: inherit;
   overflow: hidden;
   padding: 2rem 1rem;
   font-family: 'IBM Plex Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
@@ -51,20 +52,20 @@
   pointer-events: auto;
 }
 
-/* タイトル - ダークテーマに合う落ち着いた色調 */
+/* タイトル - 色は currentColor（継承）にして Text コンポーネントの color を優先 */
 .title {
   margin: 0;
   font-size: 2.4rem;
   line-height: 1.05;
-  color: #c7ddff;
+  color: currentColor;
   font-weight: 800;
 }
 
-/* リード文 */
+/* リード文 - 色は継承にしてプレビューでの不整合を防ぐ */
 .lead {
   margin-top: 0.75rem;
   font-size: 1.0625rem;
-  color: #cbd6e8;
+  color: inherit;
   max-width: 820px;
   line-height: 1.6;
   letter-spacing: 0.002em;
