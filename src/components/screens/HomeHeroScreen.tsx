@@ -3,6 +3,7 @@ import styles from './HomeHeroScreen.module.css'
 import { Background } from '../ui/Background/Background'
 import { Text } from '../ui/Text/Text'
 import { Button } from '../ui/Button/Button'
+import { Panel } from '../ui/Panel/Panel'
 
 /**
  * HomeHeroScreen
@@ -41,34 +42,34 @@ export const HomeHeroScreen: React.FC = () => {
           </div>
         </section>
 
-        {/* Features: stacked vertical blocks */}
+        {/* Features: stacked vertical blocks -> use existing Panel component for consistent styling */}
         <section className={styles.blocks} aria-label="features">
-          <div className={styles.block}>
+          <Panel size="large" className={styles.block}>
             <Text as="h3" variant="h3" color="primary" className={styles.blockTitle}>
               思考のままに話すだけ
             </Text>
             <Text variant="body" color="secondary" className={styles.blockDesc}>
               キーボードから解放され、話すだけでメモや下書きを残せます。途中でアイデアが出たらそのまま追加。
             </Text>
-          </div>
-
-          <div className={styles.block}>
+          </Panel>
+    
+          <Panel size="large" className={styles.block}>
             <Text as="h3" variant="h3" color="primary" className={styles.blockTitle}>
               音声で直接編集
             </Text>
             <Text variant="body" color="secondary" className={styles.blockDesc}>
               Gemini などの生成ツールと違い、ANL はあなたの声で既存の文章を直接差し替え・修正できます。
             </Text>
-          </div>
-
-          <div className={styles.block}>
+          </Panel>
+    
+          <Panel size="large" className={styles.block}>
             <Text as="h3" variant="h3" color="primary" className={styles.blockTitle}>
               レポート作成がもっと速く
             </Text>
             <Text variant="body" color="secondary" className={styles.blockDesc}>
               参考資料や引用と組み合わせて、構成を整え、仕上げまでスムーズに仕上げられます。
             </Text>
-          </div>
+          </Panel>
         </section>
       </main>
     </div>

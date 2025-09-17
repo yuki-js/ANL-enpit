@@ -4,8 +4,15 @@
   min-height: 100vh;
   /* 明るいクリーム〜スカイの柔らかいグラデーションに変更 */
   background: linear-gradient(180deg, #fffefc 0%, #f5fbff 100%);
-  /* 文字色はリセットして Text コンポーネントの color prop を優先させる */
+  /* 文字色はリセットしつつ、Text コンポーネントの CSS 変数に合わせたダーク系トークンを提供 */
   color: inherit;
+  /* Text の CSS 変数を上書きして明る背景に適した色に調整 */
+  --text-primary: #0f1724;    /* メインテキスト（ダーク） */
+  --text-secondary: #4b5563;  /* 補助テキスト */
+  --text-tertiary: #6b7280;   /* 三次テキスト */
+  --groom-primary: #3b82f6;
+  --bitcoin-primary: #f97316;
+  --bride-primary: #ec4899;
   overflow: hidden;
   padding: 2rem 1rem;
   font-family: 'IBM Plex Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
@@ -105,11 +112,12 @@
 }
 
 .block {
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+  /* Panel を使用するため、Panel のスタイルを活かすように背景・シャドウは無効化 */
+  background: transparent;
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 6px 24px rgba(2,6,23,0.5);
-  border: 1px solid rgba(255,255,255,0.03);
+  padding: 0; /* Panel の padding を優先 */
+  box-shadow: none;
+  border: none;
 }
 
 .blockTitle {
