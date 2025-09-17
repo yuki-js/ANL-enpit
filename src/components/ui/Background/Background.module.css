@@ -1,9 +1,9 @@
 /* =================================================================
- * Background Component - Ceremonial Animated Background
- * Inspired by card-stack-background-animation.html
- * 
- * Usage: Place <Background /> as the first child of a relatively positioned parent.
- * No props, no children, no className.
+ * Background Component - Brighter, Friendly Landing Background
+ * - Kept animations but shifted to soft, warm pastel tones for a
+ *   lighter and more inviting landing appearance.
+ * - Still no props/children. Place as first child of a relatively
+ *   positioned parent.
  * ================================================================= */
 
 .background {
@@ -13,10 +13,14 @@
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  /* Layered backgrounds and animations */
-  background: linear-gradient(160deg, #f8f6f3 0%, #fdfcf8 100%);
+
+  /* 明るいパステルのやわらかいグラデーション（上は薄いクリーム、下は淡いスカイブルー） */
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(255, 250, 240, 0.9) 0%, transparent 35%),
+              linear-gradient(180deg, #fffefc 0%, #f8fbff 100%);
+  background-blend-mode: normal, normal;
 }
 
+/* ベースアートワークレイヤー - 軽い斜めのソフトライン（極めて薄く） */
 .background::before,
 .background::after {
   content: '';
@@ -29,92 +33,69 @@
 }
 
 .background::before {
-  /* 横方向にゆっくり流れるライトラインをメインに配置 */
+  /* 柔らかいパステルライン（薄いウォームグレーとセージ系） */
   background-image:
     linear-gradient(
-      90deg,
-      rgba(255,255,255,0.02) 0%,
-      rgba(255,255,255,0.02) 20%,
-      transparent 20%,
-      transparent 80%,
-      rgba(255,255,255,0.02) 80%,
-      rgba(255,255,255,0.02) 100%
+      100deg,
+      rgba(60, 80, 90, 0.02) 0%,
+      transparent 25%,
+      transparent 75%,
+      rgba(60, 80, 90, 0.02) 100%
     ),
     linear-gradient(
       90deg,
-      rgba(120,150,255,0.03) 0%,
-      rgba(120,150,255,0.03) 40%,
-      transparent 40%,
-      transparent 60%,
-      rgba(120,150,255,0.03) 60%,
-      rgba(120,150,255,0.03) 100%
-    ),
-    radial-gradient(circle at 10% 10%, rgba(200,220,255,0.02), transparent 18%);
-  background-size:
-    280px 100%,
-    420px 100%,
-    800px 800px;
-  background-position: 0 0, 0 0, 0 0;
-  opacity: 0.85;
-  animation: horizontal-flow 36s linear infinite;
-}
-
-.background::after {
-  /* 微かな横線のレイヤーで深みを追加、ゆっくり逆方向に流す */
-  background-image:
-    linear-gradient(
-      90deg,
-      rgba(255,255,255,0.015) 0%,
-      transparent 50%,
-      rgba(255,255,255,0.015) 100%
-    ),
-    radial-gradient(circle at 80% 20%, rgba(180,200,255,0.01), transparent 20%);
+      rgba(150, 200, 220, 0.03) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(240, 230, 210, 0.03) 100%
+    );
   background-size:
     600px 100%,
-    1000px 1000px;
+    1200px 100%;
   background-position: 0 0, 0 0;
   opacity: 0.6;
-  animation: horizontal-flow-slow 60s linear infinite reverse;
+  animation: horizontal-flow 56s linear infinite;
+  mix-blend-mode: normal;
 }
 
-@keyframes p2p-network-flow {
-  from {
-    background-position:
-      0 0,
-      0 0,
-      0 0,
-      0 0,
-      0 0;
-  }
-  to {
-    background-position:
-      240px 120px,
-      120px 240px,
-      360px 180px,
-      320px 160px,
-      280px 140px;
-  }
+/* 微細なノイズとゆっくり動くドリフトで「息づく」印象を付与 */
+.background::after {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 245, 235, 0.06) 0%, transparent 20%),
+    radial-gradient(circle at 80% 70%, rgba(230, 245, 255, 0.05) 0%, transparent 18%),
+    linear-gradient(90deg, rgba(0,0,0,0.006) 0%, transparent 50%, rgba(0,0,0,0.006) 100%);
+  background-size:
+    1000px 1000px,
+    1200px 1200px,
+    1400px 100%;
+  background-position: 0 0, 0 0, 0 0;
+  opacity: 0.5;
+  animation: horizontal-flow-slow 100s linear infinite reverse;
+  mix-blend-mode: overlay;
 }
 
-/* 新しい横方向フロー用アニメーション（ライトラインが横に移動） */
+/* subtle horizontal movement for soft life */
 @keyframes horizontal-flow {
   from {
-    background-position: 0 0, 0 0, 0 0;
+    background-position: 0 0, 0 0;
+    transform: translateZ(0);
   }
   to {
-    background-position: -840px 0, -1260px 0, 0 0;
+    background-position: -840px 0, -1680px 0;
   }
 }
 
 @keyframes horizontal-flow-slow {
   from {
-    background-position: 0 0, 0 0;
+    background-position: 0 0, 0 0, 0 0;
+    transform: translateZ(0);
   }
   to {
-    background-position: -1200px 0, 0 0;
+    background-position: -1200px 0, -1600px 0, -1400px 0;
   }
 }
 
+/* gentle elegant drift retained for compatibility with original idea */
 @keyframes elegant-drift {
   from {
     background-position:
@@ -129,6 +110,7 @@
       135px 135px;
   }
 }
+
 /* Accessibility: Respect user's OS/browser "reduce motion" setting */
 @media (prefers-reduced-motion: reduce) {
   .background::before,

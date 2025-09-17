@@ -1,21 +1,23 @@
-/* ダークでテック系のスタイル — ブロックを縦に並べて見やすく */
+/* ランディング向けに明るく親しみやすいスタイルへ調整 */
 .root {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(180deg, #0f1724 0%, #0b1220 100%);
-  color: #e6eef8;
+  /* 明るいクリーム〜スカイの柔らかいグラデーションに変更 */
+  background: linear-gradient(180deg, #fffefc 0%, #f5fbff 100%);
+  color: #17202a; /* 明る背景に合わせて本文色をダークに調整 */
   overflow: hidden;
   padding: 2rem 1rem;
   font-family: 'IBM Plex Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
-/* 背景レイヤー（控えめに） */
+/* 背景レイヤー: 背景コンポーネントを薄く表示して明るさを損なわないようにする */
 .backgroundLayer {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0.6;
-  filter: brightness(0.9) saturate(0.9);
+  opacity: 0.35; /* より薄くして暗さを軽減 */
+  filter: none; /* brightnessフィルタは除去して色味を自然に */
+  pointer-events: none;
 }
 
 /* ページ本体を縦ブロックで並べる */
