@@ -1,5 +1,5 @@
 Welcome to your new TanStack app! 
-
+あいうえおかきくけこ
 # Getting Started
 
 To run this application:
