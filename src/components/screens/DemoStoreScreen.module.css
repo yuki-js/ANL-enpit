@@ -1,17 +1,86 @@
+/* ベースレイアウト */
 .root {
+  position: relative;
   min-height: 100vh;
   background: #f9fafb;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  overflow: hidden;
 }
 
+/* コンテナ（既存フォーム） */
 .container {
   width: 100%;
   max-width: 480px;
+  position: relative;
+  z-index: 2;
+  transition: opacity 400ms ease, transform 400ms ease;
 }
 
+/* ヒーロー（ページ開いた時に表示される大きな Hello World） */
+.hero {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 550ms cubic-bezier(.2,.9,.2,1), transform 550ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* visible / hidden の状態制御 */
+.heroVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.heroHidden {
+  opacity: 0;
+  transform: translateY(-18px) scale(0.98);
+  pointer-events: none;
+}
+
+/* テキスト装飾 */
+.helloText {
+  text-shadow:
+    0 2px 8px rgba(255, 183, 77, 0.28),
+    0 6px 24px rgba(249, 115, 22, 0.18);
+  font-size: 3.2rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  transform: translateZ(0);
+  animation: pop-in 900ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* サブテキスト */
+.subText {
+  margin-top: 0.25rem;
+  color: #6b7280;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+/* きらめきの装飾（疑似的に Sparkles を表現）*/
+.sparkles {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,229,180,0.35), transparent 20%),
+              radial-gradient(circle at 70% 70%, rgba(255,240,208,0.18), transparent 25%);
+  filter: blur(24px) saturate(140%);
+  transform: translateY(-6%);
+  z-index: 2;
+  animation: shimmer 2200ms linear;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* 既存フォーム用スタイル（ほぼ既存のまま） */
 .header {
   text-align: center;
   margin-bottom: 3rem;
@@ -59,4 +128,47 @@
 .emptyState {
   color: #9ca3af;
   font-style: italic;
+}
+
+/* アニメーション定義 */
+@keyframes pop-in {
+  0% {
+    transform: translateY(-18px) scale(0.95);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  60% {
+    transform: translateY(6px) scale(1.02);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateY(-6%) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-10%) rotate(18deg) scale(1.05);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-6%) rotate(36deg) scale(1);
+    opacity: 0.9;
+  }
+}
+
+/* アクセシビリティ: ユーザーが減速を希望する場合はアニメーションを無効化 */
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .sparkles {
+    animation: none !important;
+    transition: none !important;
+  }
 }

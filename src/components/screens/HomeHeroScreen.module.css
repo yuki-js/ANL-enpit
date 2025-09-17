@@ -1,0 +1,163 @@
+/* ダークでテック系のスタイル — ブロックを縦に並べて見やすく */
+.root {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f1724 0%, #0b1220 100%);
+  color: #e6eef8;
+  overflow: hidden;
+  padding: 2rem 1rem;
+  font-family: 'IBM Plex Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* 背景レイヤー（控えめに） */
+.backgroundLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.6;
+  filter: brightness(0.9) saturate(0.9);
+}
+
+/* ページ本体を縦ブロックで並べる */
+.page {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ヒーローセクション */
+.hero {
+  padding: 4rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  box-shadow: 0 6px 40px rgba(2,6,23,0.6);
+}
+
+/* テキストコンテナ（幅制限） */
+.content {
+  max-width: 880px;
+  width: 100%;
+  text-align: left;
+  pointer-events: auto;
+}
+
+/* タイトル - ダークテーマに合う落ち着いた色調 */
+.title {
+  margin: 0;
+  font-size: 2.4rem;
+  line-height: 1.05;
+  color: #c7ddff;
+  font-weight: 800;
+}
+
+/* リード文 */
+.lead {
+  margin-top: 0.75rem;
+  font-size: 1.0625rem;
+  color: #cbd6e8;
+  max-width: 820px;
+  line-height: 1.6;
+  letter-spacing: 0.002em;
+}
+
+/* CTA 行 */
+.ctaRow {
+  margin-top: 1.75rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+/* CTA 強調: ダークテーマ向けボックスシャドウと色合い */
+.cta {
+  pointer-events: auto;
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(2, 8, 23, 0.6);
+}
+
+/* セカンダリボタン */
+.secondary {
+  pointer-events: auto;
+  padding: 0.7rem 1.4rem;
+  border-radius: 10px;
+}
+
+/* ブロック群（縦に並ぶカード風） */
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.block {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 24px rgba(2,6,23,0.5);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+.blockTitle {
+  margin: 0 0 0.5rem 0;
+  color: #e6f0ff;
+  font-weight: 700;
+}
+
+.blockDesc {
+  margin: 0;
+  color: #c4cee6;
+  line-height: 1.6;
+}
+
+/* きらめき装飾（控えめ、テック感） */
+.sparkle {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(120,150,255,0.06), transparent 18%),
+              radial-gradient(circle at 70% 70%, rgba(120,150,255,0.04), transparent 22%);
+  filter: blur(36px) saturate(120%);
+  transform: translateY(-8%);
+  z-index: 1;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+  .page {
+    padding: 0;
+    gap: 1.25rem;
+  }
+  .hero {
+    padding: 2rem 1rem;
+    border-radius: 10px;
+  }
+  .title {
+    font-size: 1.6rem;
+  }
+  .lead {
+    font-size: 1rem;
+  }
+}
+
+/* アクセシビリティ: アニメーションを無効に */
+@media (prefers-reduced-motion: reduce) {
+  .sparkle {
+    animation: none !important;
+  }
+}
