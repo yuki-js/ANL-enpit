@@ -29,52 +29,73 @@
 }
 
 .background::before {
-  /* 横方向にゆっくり流れるライトラインをメインに配置 */
   background-image:
     linear-gradient(
-      90deg,
-      rgba(255,255,255,0.02) 0%,
-      rgba(255,255,255,0.02) 20%,
-      transparent 20%,
-      transparent 80%,
-      rgba(255,255,255,0.02) 80%,
-      rgba(255,255,255,0.02) 100%
+      0deg,
+      transparent 46%,
+      rgba(247, 147, 26, 0.18) 46%,
+      rgba(247, 147, 26, 0.18) 54%,
+      transparent 54%
     ),
     linear-gradient(
       90deg,
-      rgba(120,150,255,0.03) 0%,
-      rgba(120,150,255,0.03) 40%,
-      transparent 40%,
-      transparent 60%,
-      rgba(120,150,255,0.03) 60%,
-      rgba(120,150,255,0.03) 100%
+      transparent 46%,
+      rgba(212, 134, 58, 0.15) 46%,
+      rgba(212, 134, 58, 0.15) 54%,
+      transparent 54%
     ),
-    radial-gradient(circle at 10% 10%, rgba(200,220,255,0.02), transparent 18%);
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 149, 0, 0.12) 12px,
+      transparent 12px
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(232, 232, 232, 0.1) 10px,
+      transparent 10px
+    ),
+    radial-gradient(
+      circle at 60% 40%,
+      rgba(247, 147, 26, 0.08) 8px,
+      transparent 8px
+    );
   background-size:
-    280px 100%,
-    420px 100%,
-    800px 800px;
-  background-position: 0 0, 0 0, 0 0;
-  opacity: 0.85;
-  animation: horizontal-flow 36s linear infinite;
+    120px 120px,
+    120px 120px,
+    180px 180px,
+    160px 160px,
+    140px 140px;
+  animation: p2p-network-flow 45s linear infinite;
 }
 
 .background::after {
-  /* 微かな横線のレイヤーで深みを追加、ゆっくり逆方向に流す */
   background-image:
     linear-gradient(
-      90deg,
-      rgba(255,255,255,0.015) 0%,
-      transparent 50%,
-      rgba(255,255,255,0.015) 100%
+      45deg,
+      rgba(247, 147, 26, 0.06) 20%,
+      transparent 20%,
+      transparent 80%,
+      rgba(247, 147, 26, 0.06) 80%
     ),
-    radial-gradient(circle at 80% 20%, rgba(180,200,255,0.01), transparent 20%);
+    linear-gradient(
+      -45deg,
+      rgba(212, 134, 58, 0.05) 20%,
+      transparent 20%,
+      transparent 80%,
+      rgba(212, 134, 58, 0.05) 80%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(232, 232, 232, 0.04) 15%,
+      transparent 15%,
+      transparent 85%,
+      rgba(232, 232, 232, 0.04) 85%
+    );
   background-size:
-    600px 100%,
-    1000px 1000px;
-  background-position: 0 0, 0 0;
-  opacity: 0.6;
-  animation: horizontal-flow-slow 60s linear infinite reverse;
+    100px 100px,
+    110px 110px,
+    90px 90px;
+  animation: elegant-drift 50s linear infinite;
 }
 
 @keyframes p2p-network-flow {
@@ -93,25 +114,6 @@
       360px 180px,
       320px 160px,
       280px 140px;
-  }
-}
-
-/* 新しい横方向フロー用アニメーション（ライトラインが横に移動） */
-@keyframes horizontal-flow {
-  from {
-    background-position: 0 0, 0 0, 0 0;
-  }
-  to {
-    background-position: -840px 0, -1260px 0, 0 0;
-  }
-}
-
-@keyframes horizontal-flow-slow {
-  from {
-    background-position: 0 0, 0 0;
-  }
-  to {
-    background-position: -1200px 0, 0 0;
   }
 }
 
