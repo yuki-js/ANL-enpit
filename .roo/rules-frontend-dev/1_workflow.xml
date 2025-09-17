@@ -1,0 +1,190 @@
+<workflow_instructions>
+  <mode_overview>
+    This workflow guides the frontend-dev mode through the process of creating and enhancing UI components and screens for the React application. The mode focuses on design implementation, component architecture, and visual consistency while maintaining clean separation from business logic.
+  </mode_overview>
+
+  <initialization_steps>
+    <step number="1">
+      <action>Analyze user request</action>
+      <details>
+        Parse the user's input to identify:
+        - Specific UI/UX requirements
+        - Target components or screens
+        - Design constraints (responsive, accessibility)
+        - Integration requirements with existing components
+      </details>
+    </step>
+
+    <step number="2">
+      <action>Load existing component knowledge</action>
+      <tools>
+        <tool>read_file - Examine all UI components in src/components/ui/*</tool>
+        <tool>read_file - Review Storybook stories in src/stories/*</tool>
+        <tool>read_file - Check existing screens in src/components/screens/**</tool>
+      </tools>
+      <validation>
+        Must understand all component APIs, CSS Modules usage, and existing patterns
+      </validation>
+    </step>
+
+    <step number="3">
+      <action>Identify component architecture</action>
+      <details>
+        Determine:
+        - Which existing components can be reused
+        - New component creation requirements
+        - CSS Modules naming conventions
+        - Component composition patterns
+      </details>
+    </step>
+  </initialization_steps>
+
+  <main_workflow>
+    <phase name="analysis">
+      <description>Analyze requirements and plan implementation</description>
+      <steps>
+        <step number="1">
+          <title>Requirements breakdown</title>
+          <description>Decompose the request into specific UI elements and interactions</description>
+          <actions>
+            <action>Identify visual components needed</action>
+            <action>Define component props and interfaces</action>
+            <action>Plan component hierarchy</action>
+          </actions>
+        </step>
+
+        <step number="2">
+          <title>Existing code review</title>
+          <description>Ensure understanding of current implementation patterns</description>
+          <actions>
+            <action>Verify CSS Modules usage</action>
+            <action>Check component reusability patterns</action>
+            <action>Review responsive design approaches</action>
+          </actions>
+        </step>
+
+        <step number="3">
+          <title>Design plan creation</title>
+          <description>Create a clear implementation roadmap</description>
+          <actions>
+            <action>Outline component files to create/modify</action>
+            <action>Plan CSS Modules structure</action>
+            <action>Identify Storybook integration points</action>
+          </actions>
+        </step>
+      </steps>
+    </phase>
+
+    <phase name="implementation">
+      <description>Execute the UI component development</description>
+      <steps>
+        <step number="1">
+          <title>Component creation</title>
+          <description>Build or modify React components</description>
+          <actions>
+            <action>Create TypeScript component files</action>
+            <action>Implement component logic (UI-focused only)</action>
+            <action>Set up proper prop interfaces</action>
+          </actions>
+          <validation>
+            <check>Component is self-contained and reusable</check>
+            <check>Follows existing naming conventions</check>
+            <check>Includes proper TypeScript typing</check>
+          </validation>
+        </step>
+
+        <step number="2">
+          <title>Styling implementation</title>
+          <description>Apply CSS Modules styling</description>
+          <actions>
+            <action>Create corresponding .module.css files</action>
+            <action>Implement responsive design</action>
+            <action>Ensure visual consistency with existing components</action>
+          </actions>
+          <validation>
+            <check>Uses CSS Modules (no Tailwind)</check>
+            <check>Responsive breakpoints are considered</check>
+            <check>Accessible color contrast ratios</check>
+          </validation>
+        </step>
+
+        <step number="3">
+          <title>Integration and testing</title>
+          <description>Integrate components and verify functionality</description>
+          <actions>
+            <action>Add components to appropriate screens</action>
+            <action>Create Storybook stories for documentation</action>
+            <action>Verify component interactions</action>
+          </actions>
+          <validation>
+            <check>Components integrate seamlessly</check>
+            <check>Storybook stories are comprehensive</check>
+            <check>No breaking changes to existing UI</check>
+          </validation>
+        </step>
+      </steps>
+    </phase>
+
+    <phase name="validation">
+      <description>Verify implementation quality and completeness</description>
+      <steps>
+        <step number="1">
+          <title>Visual verification</title>
+          <description>Check visual consistency and responsiveness</description>
+          <actions>
+            <action>Review component appearance</action>
+            <action>Test across different screen sizes</action>
+            <action>Verify interaction states</action>
+          </actions>
+        </step>
+
+        <step number="2">
+          <title>Integration testing</title>
+          <description>Ensure proper integration with existing codebase</description>
+          <actions>
+            <action>Check component imports work correctly</action>
+            <action>Verify no conflicts with existing styles</action>
+            <action>Test component usage in screens</action>
+          </actions>
+        </step>
+
+        <step number="3">
+          <title>Documentation review</title>
+          <description>Ensure proper documentation is in place</description>
+          <actions>
+            <action>Review Storybook stories</action>
+            <action>Check component prop documentation</action>
+            <action>Verify usage examples are clear</action>
+          </actions>
+        </step>
+      </steps>
+    </phase>
+  </main_workflow>
+
+  <completion_criteria>
+    <criterion>User's design requirements are fully implemented</criterion>
+    <criterion>Components are reusable and well-documented</criterion>
+    <criterion>CSS Modules are used consistently with existing patterns</criterion>
+    <criterion>Components integrate properly with existing screens</criterion>
+    <criterion>Storybook stories provide comprehensive documentation</criterion>
+    <criterion>No business logic is included unless specifically requested</criterion>
+    <criterion>Responsive design principles are applied</criterion>
+  </completion_criteria>
+
+  <error_handling>
+    <scenario name="missing_component_knowledge">
+      <description>Unable to proceed without understanding existing components</description>
+      <solution>Read all required component files before continuing</solution>
+    </scenario>
+
+    <scenario name="logic_request">
+      <description>User requests business logic implementation</description>
+      <solution>Suggest switching to logic-writer mode for business logic</solution>
+    </scenario>
+
+    <scenario name="inconsistent_styling">
+      <description>New components don't match existing design patterns</description>
+      <solution>Review existing components and adjust implementation</solution>
+    </scenario>
+  </error_handling>
+</workflow_instructions>
