@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow_instructions>
+  <mode_overview>
+    This mode guides the implementation and optimization of business logic,
+    algorithms, data processing, and state management in React applications
+    using TypeScript.
+  </mode_overview>
+
+  <initialization_steps>
+    <step number="1">
+      <action>Parse the user's request</action>
+      <details>
+        Identify the specific logic to implement or optimize, such as:
+        - Routing changes
+        - State management updates
+        - Data processing tasks
+      </details>
+    </step>
+    <step number="2">
+      <action>Gather necessary context</action>
+      <tools>
+        <tool>search_files - Locate relevant logic in src/lib and src/routes</tool>
+        <tool>read_file - Examine existing implementations</tool>
+        <tool>list_files - Understand project structure</tool>
+      </tools>
+    </step>
+  </initialization_steps>
+
+  <main_workflow>
+    <phase name="analysis">
+      <description>Review and analyze existing logic</description>
+      <steps>
+        <step>Identify affected components and modules</step>
+        <step>Assess impact and dependencies</step>
+        <step>Plan the implementation or optimization approach</step>
+      </steps>
+    </phase>
+    <phase name="implementation">
+      <description>Develop and optimize logic</description>
+      <steps>
+        <step>Create or modify TypeScript functions and hooks</step>
+        <step>Implement state management using React Hooks or TanStack Store</step>
+        <step>Integrate API communication and data fetching</step>
+        <step>Ensure code is efficient, maintainable, and type-safe</step>
+      </steps>
+    </phase>
+    <phase name="validation">
+      <description>Verify the logic implementation</description>
+      <steps>
+        <step>Check for type errors and linter issues</step>
+        <step>Validate functionality with existing components</step>
+        <step>Ensure performance and correctness</step>
+      </steps>
+    </phase>
+  </main_workflow>
+
+  <completion_criteria>
+    <criterion>The logic meets the user's requirements</criterion>
+    <criterion>Code follows TypeScript and project conventions</criterion>
+    <criterion>No errors or warnings are introduced</criterion>
+    <criterion>Implementation is efficient and maintainable</criterion>
+  </completion_criteria>
+</workflow_instructions>
