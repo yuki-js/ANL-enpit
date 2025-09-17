@@ -20,6 +20,11 @@
   max-width: 700px;
 }
 
+.helloPanel {
+  margin-bottom: 2rem;
+  max-width: 520px;
+}
+
 .carouselPanel {
   margin-bottom: 2rem;
   max-width: 600px;
