@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Background, Button, Panel, Text, Avatar, Badge } from '../../ui/index'
+import {
+  Background,
+  Button,
+  Panel,
+  Text,
+  Avatar,
+  Badge,
+} from '../../../ui/index'
 import styles from './WelcomeScreen.module.css'
 import commonStyles from '../CommonScreenStyles.module.css'
 import logoWide from '../../../assets/logo-wide.svg'

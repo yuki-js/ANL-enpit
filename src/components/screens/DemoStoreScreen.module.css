@@ -1,0 +1,62 @@
+.root {
+  min-height: 100vh;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.resultSection {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(116, 192, 252, 0.15);
+}
+
+.resultContainer {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(116, 192, 252, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(116, 192, 252, 0.1);
+}
+
+.resultLabel {
+  margin-bottom: 0.75rem;
+}
+
+.resultValue {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.02em;
+  min-height: 2rem;
+}
+
+.emptyState {
+  color: #9ca3af;
+  font-style: italic;
+}
