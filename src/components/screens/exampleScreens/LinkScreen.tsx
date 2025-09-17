@@ -1,4 +1,4 @@
-import { Panel, Button, Text, QrCode, Input, CopyButton } from '../ui/index'
+import { Panel, Button, Text, QrCode, Input, CopyButton } from '../../ui/index'
 import styles from './LinkScreen.module.css'
 import { Bitcoin, Coins, Wallet, JapaneseYen, X } from 'lucide-react'
 import React, { useRef } from 'react'
@@ -11,7 +11,7 @@ const links = [
     colorClass: styles.evmButton,
     large: true,
     canGetNft: true,
-    tokens: ['ETH', 'USDC', "JPYC Prepaid", "POL", "BNB" ],
+    tokens: ['ETH', 'USDC', 'JPYC Prepaid', 'POL', 'BNB'],
   },
   {
     label: 'Solana',
@@ -19,7 +19,7 @@ const links = [
     icon: <Coins size={28} strokeWidth={2.2} />,
     colorClass: styles.solanaButton,
     canGetNft: false,
-    tokens: ['SOL', 'USDC', "BONK", "JUP"],
+    tokens: ['SOL', 'USDC', 'BONK', 'JUP'],
   },
   {
     label: 'Bitcoin',
@@ -52,7 +52,7 @@ const links = [
     colorClass: styles.paypayButton,
     canGetNft: false,
     tokens: ['日本円'],
-  }
+  },
 ]
 
 export function LinkScreen() {

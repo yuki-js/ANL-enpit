@@ -7,7 +7,7 @@ import {
   Checkbox,
   Spinner,
   Badge,
-} from '../../ui/index'
+} from '../../../ui/index'
 import styles from './DocumentScreen.module.css'
 import commonStyles from '../CommonScreenStyles.module.css'
 import logoWide from '../../../assets/logo-wide.svg'

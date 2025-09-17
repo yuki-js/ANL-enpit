@@ -6,7 +6,7 @@ import {
   Avatar,
   Badge,
   CopyButton,
-} from '../../ui/index'
+} from '../../../ui/index'
 import styles from './CompletionScreen.module.css'
 import commonStyles from '../CommonScreenStyles.module.css'
 import logoWide from '../../../assets/logo-wide.svg'

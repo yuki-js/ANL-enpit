@@ -9,7 +9,6 @@ import StoreDevtools from '../lib/demo-store-devtools'
 export const Route = createRootRoute({
   component: () => (
     <>
-      <Header />
       <Outlet />
       <TanstackDevtools
         config={{
