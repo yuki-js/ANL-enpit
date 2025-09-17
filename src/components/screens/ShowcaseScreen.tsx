@@ -10,6 +10,19 @@ export function ShowcaseScreen() {
     <div className={styles.root}>
       <Background />
 
+      {/* Hello World highlight */}
+      <Panel size="small" className={styles.helloPanel}>
+        <Text
+          as="h2"
+          variant="h1"
+          color="brand"
+          align="center"
+          effect="glowing"
+        >
+          Hello World!
+        </Text>
+      </Panel>
+
       {/* Showcase Header */}
       <Panel size="large" className={styles.headerPanel}>
         <Text

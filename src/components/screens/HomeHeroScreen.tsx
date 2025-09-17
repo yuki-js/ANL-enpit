@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import styles from './HomeHeroScreen.module.css'
 import { Background } from '../ui/Background/Background'
 import { Text } from '../ui/Text/Text'
@@ -11,6 +12,7 @@ import { Button } from '../ui/Button/Button'
  */
 
 export const HomeHeroScreen: React.FC = () => {
+  const navigate = useNavigate()
   return (
     <div className={styles.root}>
       <div className={styles.backgroundLayer}>
@@ -34,7 +36,12 @@ export const HomeHeroScreen: React.FC = () => {
               <Button variant="primary" size="large" className={styles.cta}>
                 無料で始める
               </Button>
-              <Button variant="secondary" size="large" className={styles.secondary}>
+              <Button
+                variant="secondary"
+                size="large"
+                className={styles.secondary}
+                onClick={() => navigate({ to: '/showcase' as any })}
+              >
                 主な機能を見る
               </Button>
             </div>
