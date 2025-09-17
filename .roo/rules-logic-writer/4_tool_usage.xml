@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tool_usage_guide>
+  <tool_priorities>
+    <priority level="1">
+      <tool>search_files</tool>
+      <when>Locate relevant logic modules and functions</when>
+      <why>Efficiently find code in src/lib and src/routes</why>
+    </priority>
+    <priority level="2">
+      <tool>read_file</tool>
+      <when>Inspect implementation details once files are identified</when>
+      <why>Obtain full context of logic before modifications</why>
+    </priority>
+    <priority level="3">
+      <tool>apply_diff</tool>
+      <when>Make precise updates to TypeScript logic</when>
+      <why>Ensure targeted, atomic changes</why>
+    </priority>
+    <priority level="4">
+      <tool>ask_followup_question</tool>
+      <when>Clarify missing requirements or ambiguous logic</when>
+      <why>Gather necessary details to avoid incorrect assumptions</why>
+    </priority>
+    <priority level="5">
+      <tool>use_mcp_tool</tool>
+      <when>Research unfamiliar libraries or patterns</when>
+      <why>Leverage Context7 for up-to-date documentation</why>
+    </priority>
+  </tool_priorities>
+
+  <tool_specific_guidance>
+    <tool name="search_files">
+      <best_practices>
+        <practice>Search by file path and keyword for precision</practice>
+        <practice>Limit scope to src/lib and src/routes by using file_pattern</practice>
+      </best_practices>
+      <example><![CDATA[
+<search_files>
+  <path>src/lib</path>
+  <regex>fetch|useStore</regex>
+  <file_pattern>*.ts</file_pattern>
+</search_files>
+]]></example>
+    </tool>
+
+    <tool name="read_file">
+      <best_practices>
+        <practice>Read small sections around target functions</practice>
+        <practice>Note imported types and dependencies</practice>
+      </best_practices>
+      <example><![CDATA[
+<read_file>
+  <args>
+    <file>
+      <path>src/lib/useFetchData.ts</path>
+    </file>
+  </args>
+</read_file>
+]]></example>
+    </tool>
+
+    <tool name="apply_diff">
+      <best_practices>
+        <practice>Always validate search block by reading file first</practice>
+        <practice>Combine related edits in a single diff</practice>
+      </best_practices>
+      <example><![CDATA[
+<apply_diff>
+<args>
+<file>
+  <path>src/lib/fetchItems.ts</path>
+  <diff>
+    <content><![CDATA[
+<<<<<<< SEARCH
+export async function fetchItems(): Promise<Item[]> {
+  const response = await fetch('/api/items');
+  if (!response.ok) throw new Error(`Error ${response.status}`);
+  return response.json();
+}
+=======
+export async function fetchItems(retries = 3): Promise<Item[]> {
+  let lastError;
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch('/api/items');
+      if (!response.ok) throw new Error(`Error ${response.status}`);
+      return response.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
+>>>>>>> REPLACE
+]]></content>
+    <start_line>1</start_line>
+  </diff>
+</file>
+</args>
+</apply_diff>
+]]></example>
+    </tool>
+
+    <tool name="ask_followup_question">
+      <best_practices>
+        <practice>Provide 2-4 specific suggestions</practice>
+      </best_practices>
+      <example><![CDATA[
+<ask_followup_question>
+  <question>Do you need retry logic for API calls?</question>
+  <follow_up>
+    <suggest>Yes, add retry with exponential backoff</suggest>
+    <suggest>No, leave as single attempt</suggest>
+  </follow_up>
+</ask_followup_question>
+]]></example>
+    </tool>
+
+    <tool name="use_mcp_tool">
+      <best_practices>
+        <practice>First resolve library ID before fetching docs</practice>
+      </best_practices>
+      <example><![CDATA[
+<use_mcp_tool>
+<server_name>context7</server_name>
+<tool_name>resolve-library-id</tool_name>
+<arguments>{"libraryName":"TanStack Store"}</arguments>
+</use_mcp_tool>
+]]></example>
+    </tool>
+  </tool_specific_guidance>
+</tool_usage_guide>
