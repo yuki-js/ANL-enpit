@@ -40,7 +40,7 @@ export const HomeHeroScreen: React.FC = () => {
                 variant="secondary"
                 size="large"
                 className={styles.secondary}
-                onClick={() => navigate({ to: '/showcase' as any })}
+                onClick={() => navigate({ to: '/showcase' })}
               >
                 主な機能を見る
               </Button>
