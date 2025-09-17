@@ -1,4 +1,4 @@
-import { Background, Button, Panel, Text } from '../ui/index'
+import { Background, Button, Panel, Text } from '../../ui/index'
 import styles from './ShareScreen.module.css'
 import commonStyles from './CommonScreenStyles.module.css'
 import logoWide from '../../assets/logo-wide.svg'
@@ -114,7 +114,11 @@ export function ShareScreen() {
                   rel="noopener noreferrer"
                   className={styles.buttonLink}
                 >
-                  <Button variant="primary" size="large" className={styles.actionButton}>
+                  <Button
+                    variant="primary"
+                    size="large"
+                    className={styles.actionButton}
+                  >
                     📄 証明書を確認
                   </Button>
                 </a>
@@ -125,13 +129,25 @@ export function ShareScreen() {
                   rel="noopener noreferrer"
                   className={styles.buttonLink}
                 >
-                  <Button variant="secondary" size="large" className={styles.actionButton}>
+                  <Button
+                    variant="secondary"
+                    size="large"
+                    className={styles.actionButton}
+                  >
                     🔍 ブロックチェーンで確認
                   </Button>
                 </a>
 
-                <a href="https://aoki.app/" target="_blank" className={styles.buttonLink}>
-                  <Button variant="groom" size="large" className={styles.actionButton}>
+                <a
+                  href="https://aoki.app/"
+                  target="_blank"
+                  className={styles.buttonLink}
+                >
+                  <Button
+                    variant="groom"
+                    size="large"
+                    className={styles.actionButton}
+                  >
                     ❓ AokiAppへ
                   </Button>
                 </a>

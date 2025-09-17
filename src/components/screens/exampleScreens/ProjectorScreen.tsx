@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Avatar, Background, Button, Panel, QrCode } from '../ui/index'
+import { Avatar, Background, Button, Panel, QrCode } from '../../ui/index'
 import styles from './ProjectorScreen.module.css'
 import commonStyles from './CommonScreenStyles.module.css'
 import logoWide from '../../assets/logo-wide.svg'

@@ -8,7 +8,7 @@ import {
   Avatar,
   Badge,
   Spinner,
-} from '../../ui/index'
+} from '../../../ui/index'
 import styles from './AuthSignatureScreen.module.css'
 import commonStyles from '../CommonScreenStyles.module.css'
 import logoWide from '../../../assets/logo-wide.svg'
