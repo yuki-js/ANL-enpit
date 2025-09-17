@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<common_patterns>
+  <pattern name="custom_fetch_hook">
+    <description>Template for a custom hook to fetch data asynchronously</description>
+    <code language="typescript"><![CDATA[
+import { useState, useEffect } from 'react';
+
+export function useFetchData<T>(url: string) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json() as Promise<T>;
+      })
+      .then((json) => setData(json))
+      .catch((err) => setError(err))
+      .finally(() => setLoading(false));
+  }, [url]);
+
+  return { data, loading, error };
+}
+    ]]></code>
+    <explanation>Uses useState and useEffect to manage fetch lifecycle and errors.</explanation>
+  </pattern>
+
+  <pattern name="tanstack_store_setup">
+    <description>Pattern for creating a global store with TanStack Store</description>
+    <code language="typescript"><![CDATA[
+import { createStore } from '@tanstack/store';
+
+type UserState = { currentUser: User | null };
+
+export const userStore = createStore<UserState>({
+  initialState: { currentUser: null },
+  actions: {
+    setUser: (state, user: User) => {
+      state.currentUser = user;
+    },
+    clearUser: (state) => {
+      state.currentUser = null;
+    },
+  },
+});
+    ]]></code>
+    <explanation>Defines a store with actions to update or clear user data.</explanation>
+  </pattern>
+
+  <pattern name="api_service_function">
+    <description>Centralized API service module for HTTP calls</description>
+    <code language="typescript"><![CDATA[
+export async function fetchItems(): Promise<Item[]> {
+  const response = await fetch('/api/items');
+  if (!response.ok) {
+    throw new Error(`Error ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+    ]]></code>
+    <explanation>Provides a single function for fetching items with error handling.</explanation>
+  </pattern>
+
+  <pattern name="complex_state_with_reducer">
+    <description>UseReducer pattern for complex component state</description>
+    <code language="typescript"><![CDATA[
+import { useReducer } from 'react';
+
+type State = { count: number; step: number };
+type Action = 
+  | { type: 'increment' } 
+  | { type: 'decrement' } 
+  | { type: 'setStep'; payload: number };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'increment':
+      return { ...state, count: state.count + state.step };
+    case 'decrement':
+      return { ...state, count: state.count - state.step };
+    case 'setStep':
+      return { ...state, step: action.payload };
+    default:
+      return state;
+  }
+}
+
+export function useCounter(initial: State) {
+  return useReducer(reducer, initial);
+}
+    ]]></code>
+    <explanation>Demonstrates structured state updates via reducer for predictable logic.</explanation>
+  </pattern>
+</common_patterns>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<best_practices>
+  <general_principles>
+    <principle priority="high">
+      <name>Separation of Concerns</name>
+      <description>Keep business logic separate from UI components and styling</description>
+      <rationale>Encourages maintainability and testability</rationale>
+      <example>
+        <good>Implement data fetching in custom hooks (e.g., useFetchItems)</good>
+        <bad>Fetching data directly inside component render logic</bad>
+      </example>
+    </principle>
+    <principle priority="high">
+      <name>Type Safety</name>
+      <description>Use TypeScript to define clear types and interfaces</description>
+      <rationale>Reduces runtime errors and improves code clarity</rationale>
+      <example>
+        <good>Define interfaces for API responses</good>
+        <bad>Use any type for API data</bad>
+      </example>
+    </principle>
+    <principle priority="medium">
+      <name>Modularization</name>
+      <description>Organize logic into small, reusable functions and hooks</description>
+      <rationale>Enhances readability and reusability</rationale>
+      <example>
+        <good>Create separate utility functions in src/lib</good>
+        <bad>Write large monolithic functions in components</bad>
+      </example>
+    </principle>
+    <principle priority="medium">
+      <name>Performance Optimization</name>
+      <description>Avoid unnecessary re-renders and optimize expensive computations</description>
+      <rationale>Improves user experience and resource usage</rationale>
+      <example>
+        <good>Use useMemo or useCallback when appropriate</good>
+        <bad>Compute derived data on every render without memoization</bad>
+      </example>
+    </principle>
+  </general_principles>
+
+  <code_conventions>
+    <convention category="naming">
+      <rule>Use descriptive, camelCase names for functions, hooks, and variables</rule>
+      <examples>
+        <good>fetchUserData, useUserStore</good>
+        <bad>f, getData</bad>
+      </examples>
+    </convention>
+    <convention category="file_structure">
+      <rule>Place shared logic in src/lib and route-specific logic in src/routes</rule>
+      <template>
+        src/
+          lib/
+            useFetchItems.ts
+            demo-store.ts
+          routes/
+            demo.store.tsx
+      </template>
+    </convention>
+    <convention category="hooks">
+      <rule>[Please note that custom hooks are discouraged] Prefix custom hooks with "use" and keep them focused on a single concern</rule>
+      <examples>
+        <good>useDataFetcher, useFormHandler</good>
+        <bad>fetchAndProcessDataInside</bad>
+      </examples>
+    </convention>
+  </code_conventions>
+
+  <common_pitfalls>
+    <pitfall>
+      <description>Mutating state directly instead of using setter functions</description>
+      <why_problematic>Causes unpredictable behavior and breaking reactivity</why_problematic>
+      <correct_approach>Always use setState or useStore methods to update state</correct_approach>
+    </pitfall>
+    <pitfall>
+      <description>Mixing side effects with render logic</description>
+      <why_problematic>Side effects should be managed in useEffect or appropriate hooks</why_problematic>
+      <correct_approach>Perform API calls and subscriptions inside useEffect</correct_approach>
+    </pitfall>
+    <pitfall>
+      <description>Overusing global state for component-local concerns</description>
+      <why_problematic>Leads to unnecessary re-renders and complex dependencies</why_problematic>
+      <correct_approach>Use local state for UI interaction and only global state for shared data</correct_approach>
+    </pitfall>
+    <pitfall>
+      <description>Creating complicated custom hooks that do too much</description>
+      <why_problematic>Custom hooks are heavy loads for beginner developers</why_problematic>
+      <correct_approach>Avoid creating custom hooks; prefer simple functions or direct logic in components</correct_approach>
+    </pitfall>
+  </common_pitfalls>
+
+  <quality_checklist>
+    <category name="before_starting">
+      <item>Review existing logic in src/lib and src/routes</item>
+      <item>Define clear requirements and expected data flow</item>
+    </category>
+    <category name="during_implementation">
+      <item>Ensure all new functions and hooks have TypeScript types</item>
+      <item>Follow linting and formatting rules</item>
+      <item>Write concise comments explaining complex logic</item>
+    </category>
+    <category name="before_completion">
+      <item>Verify no console errors or linter warnings</item>
+      <item>Test the logic in relevant components or screens</item>
+      <item>Confirm performance is acceptable and no unnecessary renders</item>
+    </category>
+  </quality_checklist>
+</best_practices>
