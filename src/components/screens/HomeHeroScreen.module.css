@@ -1,163 +1,110 @@
-/* ダークでテック系のスタイル — ブロックを縦に並べて見やすく */
-.root {
-  position: relative;
-  min-height: 100vh;
-  background: linear-gradient(180deg, #0f1724 0%, #0b1220 100%);
-  color: #e6eef8;
-  overflow: hidden;
+/* HomeHeroScreen.module.css
+   Center panels and provide balanced layout while keeping component visuals untouched.
+   Also: CTA buttons are wide and prominent per previous change.
+*/
+
+/* Root main wrapper: center content and limit width for visual balance */
+.main {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* center panels horizontally within the viewport */
   padding: 2rem 1rem;
-  font-family: 'IBM Plex Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  box-sizing: border-box;
 }
 
-/* 背景レイヤー（控えめに） */
-.backgroundLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.6;
-  filter: brightness(0.9) saturate(0.9);
-}
-
-/* ページ本体を縦ブロックで並べる */
-.page {
-  position: relative;
-  z-index: 2;
+/* Constrain inner content width so panels sit centered rather than hugging the left edge */
+.inner {
+  width: 100%;
+  max-width: 1100px; /* comfortable reading measure for hero + stacked panels */
   display: flex;
   flex-direction: column;
-  gap: 3.5rem;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
+  gap: 1.5rem;
+  align-items: stretch;
 }
 
-/* ヒーローセクション */
-.hero {
-  padding: 4rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  box-shadow: 0 6px 40px rgba(2,6,23,0.6);
-}
-
-/* テキストコンテナ（幅制限） */
-.content {
-  max-width: 880px;
-  width: 100%;
-  text-align: left;
-  pointer-events: auto;
-}
-
-/* タイトル - ダークテーマに合う落ち着いた色調 */
-.title {
-  margin: 0;
-  font-size: 2.4rem;
-  line-height: 1.05;
-  color: #c7ddff;
-  font-weight: 800;
-}
-
-/* リード文 */
-.lead {
-  margin-top: 0.75rem;
-  font-size: 1.0625rem;
-  color: #cbd6e8;
-  max-width: 820px;
-  line-height: 1.6;
-  letter-spacing: 0.002em;
-}
-
-/* CTA 行 */
+/* Keep existing CTA styles but scoped */
 .ctaRow {
-  margin-top: 1.75rem;
+  margin-top: 1.5rem;
   display: flex;
-  gap: 1rem;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-/* CTA 強調: ダークテーマ向けボックスシャドウと色合い */
-.cta {
-  pointer-events: auto;
-  padding: 0.8rem 1.6rem;
-  border-radius: 10px;
-  font-weight: 700;
-  box-shadow: 0 10px 30px rgba(2, 8, 23, 0.6);
-}
-
-/* セカンダリボタン */
-.secondary {
-  pointer-events: auto;
-  padding: 0.7rem 1.4rem;
-  border-radius: 10px;
-}
-
-/* ブロック群（縦に並ぶカード風） */
-.blocks {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  justify-content: center;
   width: 100%;
 }
 
-.block {
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 6px 24px rgba(2,6,23,0.5);
-  border: 1px solid rgba(255,255,255,0.03);
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+  width: 100%;
+  max-width: 560px;
 }
 
-.blockTitle {
-  margin: 0 0 0.5rem 0;
-  color: #e6f0ff;
-  font-weight: 700;
+.ctaGroup :global(button) {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
 }
 
-.blockDesc {
-  margin: 0;
-  color: #c4cee6;
-  line-height: 1.6;
+/* Feature section layout: allow horizontal layout on wide screens, wrap on small */
+.features {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
 }
 
-/* きらめき装飾（控えめ、テック感） */
-.sparkle {
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(120,150,255,0.06), transparent 18%),
-              radial-gradient(circle at 70% 70%, rgba(120,150,255,0.04), transparent 22%);
-  filter: blur(36px) saturate(120%);
-  transform: translateY(-8%);
-  z-index: 1;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  opacity: 0.9;
+/* Make each feature panel responsive: fixed min width, flexible up to limit */
+.featureItem {
+  flex: 0 1 320px; /* preferred width per card */
+  width: 100%;
+  max-width: 520px;
 }
 
-/* レスポンシブ */
+/* Hero panel: keep centered and visually dominant but constrained */
+.heroPanel {
+  margin: 0 auto;
+  max-width: 760px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .inner {
+    padding: 0 1rem;
+    max-width: 900px;
+  }
+
+  .ctaGroup {
+    max-width: 520px;
+  }
+}
+
 @media (max-width: 768px) {
-  .page {
-    padding: 0;
-    gap: 1.25rem;
+  .main {
+    padding: 1rem 0.75rem;
   }
-  .hero {
-    padding: 2rem 1rem;
-    border-radius: 10px;
+
+  .inner {
+    max-width: 720px;
+    gap: 1rem;
   }
-  .title {
-    font-size: 1.6rem;
-  }
-  .lead {
-    font-size: 1rem;
+
+  .featureItem {
+    max-width: 100%;
+    padding: 0 0.5rem;
   }
 }
 
-/* アクセシビリティ: アニメーションを無効に */
-@media (prefers-reduced-motion: reduce) {
-  .sparkle {
-    animation: none !important;
+@media (max-width: 480px) {
+  .main {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .ctaGroup {
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: 0 0.5rem;
   }
 }
