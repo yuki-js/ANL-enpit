@@ -121,6 +121,27 @@
   line-height: 1.6;
 }
 
+/* Hero を既存の Panel コンポーネントで包むための微調整クラス */
+.heroPanel {
+  /* Panel が既に背景・シャドウを持つため、ここでは余白と最大幅だけを整える */
+  padding: 0;
+  border-radius: 20px;
+  max-width: 1000px;
+  width: 100%;
+  box-shadow: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+/* Block を Panel で包むときのカード間隔調整 */
+.blockPanel {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));
+  box-shadow: 0 6px 24px rgba(2,6,23,0.5);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
 /* きらめき装飾（控えめ、テック感） */
 .sparkle {
   position: absolute;
