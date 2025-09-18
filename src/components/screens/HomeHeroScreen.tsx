@@ -5,12 +5,6 @@ import { Button } from '../ui/Button/Button'
 import { Panel } from '../ui/Panel/Panel'
 import styles from './HomeHeroScreen.module.css'
 
-/**
- * HomeHeroScreen
- *
- * Updated: ダークでテック感のある配色へ変更、ページを縦にブロック分けして見やすく
- */
-
 export const HomeHeroScreen: React.FC = () => {
   return (
     <>
