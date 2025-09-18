@@ -31,11 +31,15 @@ export const HomeHeroScreen: React.FC = () => {
  
             <div className={styles.ctaRow}>
               <div className={styles.ctaGroup}>
-                <Button variant="primary" size="large">
-                  無料で始める
-                </Button>
-                <Button variant="secondary" size="large">
-                  主な機能を見る
+                <Button
+                  variant="primary"
+                  size="large"
+                  onClick={() => {
+                    // シンプルなページ遷移（後でルーター経由に差し替え可能）
+                    window.location.pathname = '/chat'
+                  }}
+                >
+                  はじめる
                 </Button>
               </div>
             </div>
