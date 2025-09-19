@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoiceInputRouteImport } from './routes/voice-input'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RealtimeDebugRouteImport } from './routes/realtime-debug'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VoiceInputRoute = VoiceInputRouteImport.update({
+  id: '/voice-input',
+  path: '/voice-input',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RealtimeDebugRoute = RealtimeDebugRouteImport.update({
+  id: '/realtime-debug',
+  path: '/realtime-debug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +37,59 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
+  '/voice-input': typeof VoiceInputRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
+  '/voice-input': typeof VoiceInputRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
+  '/voice-input': typeof VoiceInputRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings'
+  fullPaths: '/' | '/realtime-debug' | '/settings' | '/voice-input'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings'
-  id: '__root__' | '/' | '/settings'
+  to: '/' | '/realtime-debug' | '/settings' | '/voice-input'
+  id: '__root__' | '/' | '/realtime-debug' | '/settings' | '/voice-input'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  RealtimeDebugRoute: typeof RealtimeDebugRoute
   SettingsRoute: typeof SettingsRoute
+  VoiceInputRoute: typeof VoiceInputRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/voice-input': {
+      id: '/voice-input'
+      path: '/voice-input'
+      fullPath: '/voice-input'
+      preLoaderRoute: typeof VoiceInputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/realtime-debug': {
+      id: '/realtime-debug'
+      path: '/realtime-debug'
+      fullPath: '/realtime-debug'
+      preLoaderRoute: typeof RealtimeDebugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  RealtimeDebugRoute: RealtimeDebugRoute,
   SettingsRoute: SettingsRoute,
+  VoiceInputRoute: VoiceInputRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

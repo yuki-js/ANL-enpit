@@ -29,19 +29,15 @@ export type MicStatus = 'off' | 'on' | 'muted'
 
 // --- Session / Command Shapes (minimal placeholders) ---
 
-export type RealtimeModality = 'audio+text' | 'text-only'
-
 export interface RealtimeSessionConfig {
   instructions?: string
   temperature?: number
-  modality?: RealtimeModality
   // Extend with VAD, voice, formats, tools, etc.
 }
 
 export interface RealtimeResponseOptions {
   instructions?: string
   temperature?: number
-  modality?: RealtimeModality
 }
 
 // --- Server Event Shapes (subset, minimal) ---
@@ -414,8 +410,6 @@ export function useRealtimeCall(): UseRealtimeCallIO {
         payload.instructions = opts.instructions
       if (typeof opts.temperature !== 'undefined')
         payload.temperature = opts.temperature
-      if (typeof opts.modality !== 'undefined')
-        payload.modality = opts.modality
     }
     sendJSON(payload)
   }, [])
