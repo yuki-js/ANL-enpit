@@ -1,0 +1,41 @@
+.wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+.inner {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.panel {
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.streamContainer {
+  border: 1px solid var(--panel-border, #e6e9ee);
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--panel-bg, #fff);
+  max-height: 520px;
+  overflow: auto;
+}
+
+/* small helper to space Streamdown blocks */
+.chunk {
+  margin-bottom: 6px;
+}

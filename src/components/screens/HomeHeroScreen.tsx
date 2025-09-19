@@ -29,11 +29,22 @@ export const HomeHeroScreen: React.FC = () => {
                   variant="primary"
                   size="large"
                   onClick={() => {
-                    // シンプルなページ遷移（後でルーター経由に差し替え可能）
-                    window.location.pathname = '/chat'
+                    // ランディングから VoiceInput へ遷移
+                    window.location.pathname = '/voice-input'
                   }}
                 >
                   はじめる
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="large"
+                  onClick={() => {
+                    // 設定ページへ遷移
+                    window.location.pathname = '/settings'
+                  }}
+                >
+                  設定
                 </Button>
               </div>
             </div>
