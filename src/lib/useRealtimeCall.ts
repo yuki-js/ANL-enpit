@@ -94,6 +94,9 @@ export interface UseRealtimeCallIO {
   micStatus: MicStatus
   error?: string
 
+  // Live mic input magnitude (0..1, smoothed)
+  inputLevel: number
+
   // Handlers
   setHandlers: (handlers: Partial<RealtimeEventHandlers>) => void
 
@@ -149,6 +152,11 @@ export function useRealtimeCall(): UseRealtimeCallIO {
   const processorRef = useRef<ScriptProcessorNode | null>(null)
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
   const mutedRef = useRef<boolean>(false)
+
+  // UI metering state
+  const [inputLevel, setInputLevel] = useState<number>(0)
+  const levelSmoothRef = useRef<number>(0)
+
 
   // Pending session.update (sent on open if provided at startCall)
   const pendingSessionRef = useRef<RealtimeSessionConfig | null>(null)
@@ -770,11 +778,26 @@ export function useRealtimeCall(): UseRealtimeCallIO {
         const processor = ctx.createScriptProcessor(bufferSize, 1, 1)
 
         processor.onaudioprocess = (e) => {
-          if (mutedRef.current) return
-          if (!isOpen()) return
-
           const inRate = ctx.sampleRate
           const input = e.inputBuffer.getChannelData(0)
+
+          // Compute peak magnitude (0..1) even if not sending audio
+          let peak = 0
+          for (let i = 0; i < input.length; i++) {
+            const v = Math.abs(input[i])
+            if (v > peak) peak = v
+          }
+          // Smooth to reduce jitter
+          const alpha = 0.35
+          levelSmoothRef.current =
+            levelSmoothRef.current * (1 - alpha) + peak * alpha
+          const smoothed = Math.min(1, Math.max(0, levelSmoothRef.current))
+          setInputLevel(smoothed)
+
+          // If muted or not connected, do not send audio frames
+          if (mutedRef.current || !isOpen()) return
+
+          // Prepare and send audio
           const copy = new Float32Array(input.length)
           copy.set(input)
 
@@ -785,7 +808,6 @@ export function useRealtimeCall(): UseRealtimeCallIO {
           )
           const base64Audio = abToBase64(outBuf)
           try {
-            // Send as JSON with base64 audio
             wsRef.current!.send(
               JSON.stringify({
                 type: 'input_audio_buffer.append',
@@ -927,6 +949,7 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     status,
     micStatus,
     error,
+    inputLevel,
     setHandlers,
     startCall,
     endCall,

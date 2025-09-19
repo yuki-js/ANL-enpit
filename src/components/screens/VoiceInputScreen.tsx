@@ -12,7 +12,7 @@ const VoiceInputScreen: React.FC = () => {
   const [device, setDevice] = useState<string>('default')
 
   // Realtime call hook
-  const { status, micStatus, error, setHandlers, startCall, endCall, mute, unmute } =
+  const { status, micStatus, error, setHandlers, startCall, endCall, mute, unmute, inputLevel } =
     useRealtimeCall()
 
   // Derived flags for UI
@@ -36,22 +36,26 @@ const VoiceInputScreen: React.FC = () => {
     })
   }, [setHandlers])
 
-  // Toggle connection: connect -> startCall (then mute to avoid immediate audio),
-  // disconnect -> endCall
-  const handleToggleConnection = useCallback(async () => {
+  // Mic button: if not connected, start call and begin recording immediately.
+  // If connected: toggle recording (mute/unmute).
+  const handleMicButtonClick = useCallback(async () => {
     if (!connected) {
       try {
-        // Start call (opens WS + starts mic). Immediately mute so user can explicitly start recording.
         await startCall({ sampleRate: 24000, frameSize: 4096 })
-        // Ensure muted after connecting so UI shows connected but not recording.
-        mute()
+        // Ensure mic is active
+        unmute()
       } catch (e) {
-        // startCall surfaces errors via hook.error / onError handler
+        // errors are surfaced via hook.error / onError handler
       }
-    } else {
-      endCall()
+      return
     }
-  }, [connected, startCall, endCall, mute])
+    // Connected: toggle
+    if (isRecording) {
+      mute()
+    } else {
+      unmute()
+    }
+  }, [connected, startCall, mute, unmute, isRecording])
 
   // Recording toggle: unmute -> start sending audio, mute -> pause audio
   const toggleRecording = useCallback(() => {
@@ -93,22 +97,7 @@ const VoiceInputScreen: React.FC = () => {
               </span>
             </div>
 
-            <div className={styles.connectionRow}>
-              <Text variant="caption" color="tertiary" className={styles.connectionNote}>
-                接続オフにするとセッションの記憶はリセットされます
-              </Text>
-
-              <div>
-                <Button
-                  variant={connected ? 'secondary' : 'primary'}
-                  size="medium"
-                  onClick={handleToggleConnection}
-                  title={connected ? '接続を切断する' : '接続する'}
-                >
-                  {connected ? '切断' : '接続'}
-                </Button>
-              </div>
-            </div>
+            {/* 接続ボタンは廃止。マイクボタンのみで開始/停止します。 */}
 
             {error && (
               <Text variant="caption" color="error">
@@ -130,9 +119,15 @@ const VoiceInputScreen: React.FC = () => {
               role="img"
               aria-label="入力レベルビジュアライザ（文字起こしは行いません）"
             >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <span key={i} className={styles.bar} />
-              ))}
+              {Array.from({ length: 12 }).map((_, i) => {
+                const falloff = 1 - i / (12 + 4)
+                const level = Math.max(0, Math.min(1, Math.pow(inputLevel ?? 0, 0.9) * falloff))
+                const minPct = 14
+                const pct = Math.max(minPct, Math.round(level * 100))
+                return (
+                  <span key={i} className={styles.bar} style={{ height: pct + '%' }} />
+                )
+              })}
             </div>
             <Text variant="caption" color="secondary" align="center">
               押し続ける必要はありません。録音はボタンで開始／停止します。
@@ -149,8 +144,8 @@ const VoiceInputScreen: React.FC = () => {
                 .join(' ')}
               variant="primary"
               size="large"
-              onClick={connected ? toggleRecording : undefined}
-              disabled={!connected}
+              onClick={handleMicButtonClick}
+              disabled={false}
               aria-label={isRecording ? '録音停止' : '録音開始'}
               title={isRecording ? '録音中 — クリックで停止' : '録音開始'}
               aria-pressed={isRecording ? 'true' : 'false'}
