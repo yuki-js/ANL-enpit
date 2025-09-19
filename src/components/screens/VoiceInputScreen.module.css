@@ -1,0 +1,202 @@
+/* VoiceInputScreen.module.css
+   UI-focused styles for the voice input screen.
+   Uses existing design tokens and component sizing conventions.
+*/
+
+.wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+.inner {
+  width: 100%;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+/* Panel overrides */
+.panel {
+  width: 100%;
+}
+
+/* Header area: title + status + connection controls */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.status {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Connection controls row */
+.connectionRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.connectionNote {
+  margin-left: 0.5rem;
+  color: var(--text-tertiary, #9ca3af);
+}
+
+/* Meter block: visual audio level bars */
+.meterBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+/* Meter itself */
+.meter {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  max-width: 640px;
+  height: 56px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(116,192,252,0.08);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,0.6),
+    0 2px 6px rgba(0,0,0,0.06);
+  transition: all 0.15s ease;
+}
+
+/* individual bars */
+.bar {
+  display: inline-block;
+  width: 6%;
+  height: 14%;
+  background: linear-gradient(180deg, rgba(116,192,252,0.15), rgba(116,192,252,0.35));
+  border-radius: 4px;
+  transition: height 0.18s ease, background 0.18s ease, transform 0.12s ease;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset;
+}
+
+/* Recording state: bars grow and color intensifies */
+.recording .bar {
+  background: linear-gradient(180deg, var(--groom-primary, #74c0fc), rgba(116,192,252,0.2));
+  animation: meter-pulse 1s ease-in-out infinite;
+}
+
+/* Paused state: dimmed bars */
+.paused .bar {
+  background: linear-gradient(180deg, rgba(107,114,128,0.12), rgba(107,114,128,0.18));
+  opacity: 0.6;
+  transform: scaleY(0.9);
+}
+
+/* Disconnected: very subdued */
+.disconnected {
+  background: rgba(241,243,245,0.6);
+  border-color: rgba(0,0,0,0.04);
+}
+.disconnected .bar {
+  background: linear-gradient(180deg, rgba(156,163,175,0.12), rgba(156,163,175,0.16));
+  opacity: 0.5;
+}
+
+/* Controls row */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Settings area */
+.settings {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 220px;
+  flex: 1 1 320px;
+}
+
+/* select form control */
+.select {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(116,192,252,0.12);
+  background: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary, #374151);
+  outline: none;
+  transition: box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.select:focus {
+  box-shadow: 0 4px 12px rgba(116,192,252,0.08);
+  border-color: rgba(116,192,252,0.4);
+}
+
+/* responsiveness */
+@media (max-width: 900px) {
+  .meter {
+    max-width: 100%;
+    height: 48px;
+  }
+  .bar {
+    width: 7%;
+  }
+  .field {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrap {
+    padding: 1rem 0.5rem;
+  }
+  .meter {
+    height: 40px;
+  }
+  .bar {
+    width: 8%;
+  }
+}
+
+/* small animation to make bars feel alive in recording state */
+@keyframes meter-pulse {
+  0% { transform: scaleY(0.6); }
+  30% { transform: scaleY(1); }
+  60% { transform: scaleY(0.8); }
+  100% { transform: scaleY(0.7); }
+}
