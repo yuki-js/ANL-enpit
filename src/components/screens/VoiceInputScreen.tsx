@@ -1,33 +1,76 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Panel } from '../ui/Panel/Panel'
 import { Text } from '../ui/Text/Text'
 import { IconButton } from '../ui/IconButton/IconButton'
 import { StatusIndicator } from '../ui/StatusIndicator/StatusIndicator'
+import { Button } from '../ui/Button/Button'
+import { useRealtimeCall } from '../../lib/useRealtimeCall'
 import styles from './VoiceInputScreen.module.css'
 
-type TransportState = 'idle' | 'recording' | 'paused'
-
 const VoiceInputScreen: React.FC = () => {
-  const [connected, setConnected] = useState(false)
-  const [transport, setTransport] = useState<TransportState>('idle')
+  // Device selection remains purely UI for now
   const [device, setDevice] = useState<string>('default')
 
-  const handleToggleConnection = () => {
-    const next = !connected
-    setConnected(next)
-    // 切断時はUI上のセッション状態をリセット（記憶の連続性も切れる想定）
-    if (!next) {
-      setTransport('idle')
+  // Realtime call hook
+  const { status, micStatus, error, setHandlers, startCall, endCall, mute, unmute } =
+    useRealtimeCall()
+
+  // Derived flags for UI
+  const connected = useMemo(() => status === 'connected' || status === 'connecting', [status])
+  const isRecording = micStatus === 'on'
+  const isPaused = micStatus === 'muted'
+
+  // Register simple handlers (no heavy logic here)
+  useEffect(() => {
+    setHandlers({
+      onOpen: () => {
+        // could show toast or update analytics - keep minimal here
+        // console.log('realtime: open')
+      },
+      onClose: () => {
+        // console.log('realtime: closed')
+      },
+      onError: (e) => {
+        // console.warn('realtime error', e)
+      },
+    })
+  }, [setHandlers])
+
+  // Toggle connection: connect -> startCall (then mute to avoid immediate audio),
+  // disconnect -> endCall
+  const handleToggleConnection = useCallback(async () => {
+    if (!connected) {
+      try {
+        // Start call (opens WS + starts mic). Immediately mute so user can explicitly start recording.
+        await startCall({ sampleRate: 24000, frameSize: 4096 })
+        // Ensure muted after connecting so UI shows connected but not recording.
+        mute()
+      } catch (e) {
+        // startCall surfaces errors via hook.error / onError handler
+      }
+    } else {
+      endCall()
     }
-  }
+  }, [connected, startCall, endCall, mute])
 
-  const start = () => setTransport('recording')
-  const pause = () => setTransport('paused')
-  const resume = () => setTransport('recording')
-  const stop = () => setTransport('idle')
+  // Recording toggle: unmute -> start sending audio, mute -> pause audio
+  const toggleRecording = useCallback(() => {
+    if (!connected) return
+    if (isRecording) {
+      mute()
+    } else {
+      // If currently 'off' (shouldn't normally happen when connected), calling unmute will only work when mic exists.
+      unmute()
+    }
+  }, [connected, isRecording, mute, unmute])
 
-  const isRecording = transport === 'recording'
-  const isPaused = transport === 'paused'
+  // UI status label
+  const statusLabel = useMemo(() => {
+    if (status === 'connecting') return '接続中...'
+    if (status === 'connected') return isRecording ? '録音中' : '接続中'
+    if (status === 'error') return 'エラー'
+    return '未接続'
+  }, [status, isRecording])
 
   return (
     <main className={styles.wrap} aria-label="voice-input">
@@ -45,7 +88,7 @@ const VoiceInputScreen: React.FC = () => {
                   aria-label={connected ? (isRecording ? '接続中・録音中' : '接続中') : '未接続'}
                 />
                 <Text as="span" variant="label" color={connected ? 'info' : 'secondary'}>
-                  {connected ? (isRecording ? '録音中' : '接続中') : '未接続'}
+                  {statusLabel}
                 </Text>
               </span>
             </div>
@@ -54,7 +97,24 @@ const VoiceInputScreen: React.FC = () => {
               <Text variant="caption" color="tertiary" className={styles.connectionNote}>
                 接続オフにするとセッションの記憶はリセットされます
               </Text>
+
+              <div>
+                <Button
+                  variant={connected ? 'secondary' : 'primary'}
+                  size="medium"
+                  onClick={handleToggleConnection}
+                  title={connected ? '接続を切断する' : '接続する'}
+                >
+                  {connected ? '切断' : '接続'}
+                </Button>
+              </div>
             </div>
+
+            {error && (
+              <Text variant="caption" color="error">
+                {String(error)}
+              </Text>
+            )}
           </div>
 
           <div className={styles.meterBlock}>
@@ -83,7 +143,7 @@ const VoiceInputScreen: React.FC = () => {
             <IconButton
               className={styles.recordButton}
               sent={isRecording}
-              onClick={connected ? (isRecording ? stop : start) : undefined}
+              onClick={connected ? toggleRecording : undefined}
               disabled={!connected}
               aria-label={isRecording ? '録音停止' : '録音開始'}
               title={isRecording ? '録音中 — クリックで停止' : '録音開始'}
