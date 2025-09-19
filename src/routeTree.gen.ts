@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShowcaseRouteImport } from './routes/showcase'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoStoreRouteImport } from './routes/demo.store'
@@ -17,6 +18,11 @@ import { Route as DemoStoreRouteImport } from './routes/demo.store'
 const ShowcaseRoute = ShowcaseRouteImport.update({
   id: '/showcase',
   path: '/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -38,12 +44,14 @@ const DemoStoreRoute = DemoStoreRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/settings': typeof SettingsRoute
   '/showcase': typeof ShowcaseRoute
   '/demo/store': typeof DemoStoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/settings': typeof SettingsRoute
   '/showcase': typeof ShowcaseRoute
   '/demo/store': typeof DemoStoreRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/chat': typeof ChatRoute
+  '/settings': typeof SettingsRoute
   '/showcase': typeof ShowcaseRoute
   '/demo/store': typeof DemoStoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/showcase' | '/demo/store'
+  fullPaths: '/' | '/chat' | '/settings' | '/showcase' | '/demo/store'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/showcase' | '/demo/store'
-  id: '__root__' | '/' | '/chat' | '/showcase' | '/demo/store'
+  to: '/' | '/chat' | '/settings' | '/showcase' | '/demo/store'
+  id: '__root__' | '/' | '/chat' | '/settings' | '/showcase' | '/demo/store'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChatRoute: typeof ChatRoute
+  SettingsRoute: typeof SettingsRoute
   ShowcaseRoute: typeof ShowcaseRoute
   DemoStoreRoute: typeof DemoStoreRoute
 }
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/showcase'
       fullPath: '/showcase'
       preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -105,6 +122,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChatRoute: ChatRoute,
+  SettingsRoute: SettingsRoute,
   ShowcaseRoute: ShowcaseRoute,
   DemoStoreRoute: DemoStoreRoute,
 }
