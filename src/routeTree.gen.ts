@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoiceInputRouteImport } from './routes/voice-input'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RealtimeDebugRouteImport } from './routes/realtime-debug'
+import { Route as MarkdownDocumentRouteImport } from './routes/markdownDocument'
 import { Route as IndexRouteImport } from './routes/index'
 
 const VoiceInputRoute = VoiceInputRouteImport.update({
@@ -29,6 +30,11 @@ const RealtimeDebugRoute = RealtimeDebugRouteImport.update({
   path: '/realtime-debug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarkdownDocumentRoute = MarkdownDocumentRouteImport.update({
+  id: '/markdownDocument',
+  path: '/markdownDocument',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/markdownDocument': typeof MarkdownDocumentRoute
   '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
   '/voice-input': typeof VoiceInputRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/markdownDocument': typeof MarkdownDocumentRoute
   '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
   '/voice-input': typeof VoiceInputRoute
@@ -50,20 +58,38 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/markdownDocument': typeof MarkdownDocumentRoute
   '/realtime-debug': typeof RealtimeDebugRoute
   '/settings': typeof SettingsRoute
   '/voice-input': typeof VoiceInputRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/realtime-debug' | '/settings' | '/voice-input'
+  fullPaths:
+    | '/'
+    | '/markdownDocument'
+    | '/realtime-debug'
+    | '/settings'
+    | '/voice-input'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/realtime-debug' | '/settings' | '/voice-input'
-  id: '__root__' | '/' | '/realtime-debug' | '/settings' | '/voice-input'
+  to:
+    | '/'
+    | '/markdownDocument'
+    | '/realtime-debug'
+    | '/settings'
+    | '/voice-input'
+  id:
+    | '__root__'
+    | '/'
+    | '/markdownDocument'
+    | '/realtime-debug'
+    | '/settings'
+    | '/voice-input'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MarkdownDocumentRoute: typeof MarkdownDocumentRoute
   RealtimeDebugRoute: typeof RealtimeDebugRoute
   SettingsRoute: typeof SettingsRoute
   VoiceInputRoute: typeof VoiceInputRoute
@@ -92,6 +118,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RealtimeDebugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/markdownDocument': {
+      id: '/markdownDocument'
+      path: '/markdownDocument'
+      fullPath: '/markdownDocument'
+      preLoaderRoute: typeof MarkdownDocumentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MarkdownDocumentRoute: MarkdownDocumentRoute,
   RealtimeDebugRoute: RealtimeDebugRoute,
   SettingsRoute: SettingsRoute,
   VoiceInputRoute: VoiceInputRoute,

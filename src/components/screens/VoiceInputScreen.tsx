@@ -123,6 +123,19 @@ const VoiceInputScreen: React.FC = () => {
               </Text>
             </div>
           </div>
+
+          {/* MarkdownDocument への遷移ボタンを追加（voice-input から遷移可能にする） */}
+          <div style={{ marginTop: 12 }}>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.pathname = '/markdownDocument'
+              }}
+              style={{ padding: '8px 12px', borderRadius: 8 }}
+            >
+              文書を開く
+            </button>
+          </div>
         </Panel>
       </div>
     </main>
