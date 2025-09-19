@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Panel } from '../ui/Panel/Panel'
 import { Text } from '../ui/Text/Text'
-import { Button } from '../ui/Button/Button'
+import { IconButton } from '../ui/IconButton/IconButton'
 import { StatusIndicator } from '../ui/StatusIndicator/StatusIndicator'
 import styles from './VoiceInputScreen.module.css'
 
@@ -51,13 +51,6 @@ const VoiceInputScreen: React.FC = () => {
             </div>
 
             <div className={styles.connectionRow}>
-              <Button
-                variant={connected ? 'secondary' : 'primary'}
-                onClick={handleToggleConnection}
-                aria-label={connected ? '切断' : '接続'}
-              >
-                {connected ? '切断' : '接続'}
-              </Button>
               <Text variant="caption" color="tertiary" className={styles.connectionNote}>
                 接続オフにするとセッションの記憶はリセットされます
               </Text>
@@ -82,35 +75,32 @@ const VoiceInputScreen: React.FC = () => {
               ))}
             </div>
             <Text variant="caption" color="secondary" align="center">
-              押し続ける必要はありません。開始/一時停止/停止を明示して操作します。
+              押し続ける必要はありません。録音はボタンで開始／停止します。
             </Text>
           </div>
 
           <div className={styles.controls}>
-            {!connected && (
-              <Button variant="secondary" disabled>
-                録音開始
-              </Button>
-            )}
-            {connected && transport === 'idle' && <Button onClick={start}>録音開始</Button>}
-            {connected && isRecording && (
-              <>
-                <Button variant="secondary" onClick={pause}>
-                  一時停止
-                </Button>
-                <Button variant="secondary" onClick={stop}>
-                  停止
-                </Button>
-              </>
-            )}
-            {connected && isPaused && (
-              <>
-                <Button onClick={resume}>再開</Button>
-                <Button variant="secondary" onClick={stop}>
-                  停止
-                </Button>
-              </>
-            )}
+            <IconButton
+              className={styles.recordButton}
+              sent={isRecording}
+              onClick={connected ? (isRecording ? stop : start) : undefined}
+              disabled={!connected}
+              aria-label={isRecording ? '録音停止' : '録音開始'}
+              title={isRecording ? '録音中 — クリックで停止' : '録音開始'}
+              aria-pressed={isRecording}
+            >
+              {isRecording ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="9" fill="currentColor" />
+                  <rect x="9" y="9" width="6" height="6" rx="1" fill="#fff" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
+                  <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11z" />
+                </svg>
+              )}
+            </IconButton>
           </div>
 
           <div className={styles.settings}>
