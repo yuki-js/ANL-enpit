@@ -32,7 +32,7 @@ export type MicStatus = 'off' | 'on' | 'muted'
 export interface RealtimeSessionConfig {
   instructions?: string
   temperature?: number
-  input_audio_format?: { type: string; sample_rate_hz: number }
+  input_audio_format?: string
   turn_detection?: { type: string; silence_duration_ms?: number }
   // Extend with VAD, voice, formats, tools, etc.
 }
@@ -218,6 +218,17 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     return bytes.buffer
   }
 
+  // Convert PCM16 ArrayBuffer to Float32Array for playback
+  function pcm16ToFloat32(pcm16: ArrayBuffer): Float32Array {
+    // Always return a plain Float32Array (no generics)
+    const int16 = new Int16Array(pcm16)
+    const float32: Float32Array = new Float32Array(int16.length)
+    for (let i = 0; i < int16.length; i++) {
+      float32[i] = int16[i] / 32768.0
+    }
+    return float32
+  }
+
   const isOpen = () =>
     !!wsRef.current && wsRef.current.readyState === WebSocket.OPEN
 
@@ -247,82 +258,121 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     const t = payload.type
     switch (t) {
       case 'response.output_text.delta': {
-        const e: TextDeltaEvent = {
+        const e: TextDeltaEvent & { rawType: string } = {
           type: 'text_delta',
           id: String(payload.id ?? ''),
           delta: String(payload.delta ?? ''),
+          rawType: t,
         }
         handlersRef.current.onTextDelta?.(e)
         break
       }
       case 'response.output_text.done': {
-        const e: ControlEvent = {
+        const e: ControlEvent & { rawType: string } = {
           type: 'control',
           action: 'text_done',
           id: payload.id,
+          rawType: t,
         }
         handlersRef.current.onControl?.(e)
         break
       }
       case 'response.output_audio.delta': {
         const audioBuf = base64ToAb(String(payload.delta ?? ''))
-        const e: AudioEvent = {
+        const float32 = pcm16ToFloat32(audioBuf)
+        console.log(
+          'Received audio delta, length:',
+          audioBuf.byteLength,
+          'samples:',
+          float32.length,
+        )
+        // Play the audio stream
+        const ctx = audioContextRef.current
+        if (ctx) {
+          console.log('AudioContext state:', ctx.state)
+          if (ctx.state === 'suspended') {
+            ctx.resume().then(() => console.log('AudioContext resumed'))
+          }
+          const buffer = ctx.createBuffer(1, float32.length, TARGET_SAMPLE_RATE)
+          // Fix for TS type error: ensure float32 is a plain Float32Array
+          // Direct assignment to buffer channel data (works in all environments, avoids TS error)
+          for (let i = 0; i < float32.length; i++) {
+            buffer.getChannelData(0)[i] = float32[i]
+          }
+          const source = ctx.createBufferSource()
+          source.buffer = buffer
+          source.connect(ctx.destination)
+          source.start()
+          console.log('Started playing audio')
+        } else {
+          console.log('No AudioContext available')
+        }
+        const e: AudioEvent & { rawType: string } = {
           type: 'audio',
           audioBuffer: audioBuf,
+          rawType: t,
         }
         handlersRef.current.onAudio?.(e)
         break
       }
       case 'response.output_audio.done': {
-        const e: ControlEvent = {
+        const e: ControlEvent & { rawType: string } = {
           type: 'control',
           action: 'audio_done',
           id: payload.id,
+          rawType: t,
         }
         handlersRef.current.onControl?.(e)
         break
       }
       case 'response.completed': {
-        const e: ControlEvent = {
+        const e: ControlEvent & { rawType: string } = {
           type: 'control',
           action: 'completed',
           id: payload.id,
+          rawType: t,
         }
         handlersRef.current.onControl?.(e)
         break
       }
       case 'error': {
-        const e: ControlEvent = {
+        const e: ControlEvent & { rawType: string } = {
           type: 'control',
           action: 'error',
           id: payload.id,
+          rawType: t,
         }
         handlersRef.current.onControl?.(e)
         callOnError(new Error(String(payload.error ?? 'Unknown error')))
         break
       }
       case 'transcription': {
-        const e: TranscriptionEvent = {
+        const e: TranscriptionEvent & { rawType: string } = {
           type: 'transcription',
           id: String(payload.id ?? ''),
           text: String(payload.text ?? ''),
+          rawType: t,
         }
         handlersRef.current.onTranscription?.(e)
         break
       }
       case 'control': {
-        const e: ControlEvent = {
+        const e: ControlEvent & { rawType: string } = {
           type: 'control',
           action: String(payload.action ?? 'control'),
           greeting: payload.greeting,
           id: payload.id,
+          rawType: t,
         }
         handlersRef.current.onControl?.(e)
         break
       }
-      default:
-        // Unknown message type; ignore for now
+      default: {
+        // Unknown message type; log rawType for debug
+        const e = { type: 'unknown', rawType: t, payload }
+        handlersRef.current.onControl?.(e as any)
         break
+      }
     }
   }
 
@@ -439,11 +489,14 @@ export function useRealtimeCall(): UseRealtimeCallIO {
       }
       // Flush pending session.update if provided at startCall
       if (pendingSessionRef.current) {
-        const session = { ...pendingSessionRef.current }
+        const session: any = { ...pendingSessionRef.current }
         if (!session.input_audio_format) {
-          session.input_audio_format = {
-            type: 'pcm16',
-            sample_rate_hz: TARGET_SAMPLE_RATE,
+          session.input_audio_format = 'pcm16'
+        }
+        if (!session.turn_detection) {
+          session.turn_detection = {
+            type: 'server_vad',
+            silence_duration_ms: 500,
           }
         }
         sendJSON({ type: 'session.update', session })
@@ -451,21 +504,22 @@ export function useRealtimeCall(): UseRealtimeCallIO {
         pendingSessionRef.current = null
       } else if (lastSessionConfigRef.current) {
         // Re-apply prior session config after reconnect
-        const session = { ...lastSessionConfigRef.current }
+        const session: any = { ...lastSessionConfigRef.current }
         if (!session.input_audio_format) {
-          session.input_audio_format = {
-            type: 'pcm16',
-            sample_rate_hz: TARGET_SAMPLE_RATE,
+          session.input_audio_format = 'pcm16'
+        }
+        if (!session.turn_detection) {
+          session.turn_detection = {
+            type: 'server_vad',
+            silence_duration_ms: 500,
           }
         }
         sendJSON({ type: 'session.update', session })
       } else {
         // Send default session update
         const session = {
-          input_audio_format: {
-            type: 'pcm16',
-            sample_rate_hz: TARGET_SAMPLE_RATE,
-          },
+          input_audio_format: 'pcm16',
+          turn_detection: { type: 'server_vad', silence_duration_ms: 500 },
         }
         sendJSON({ type: 'session.update', session })
         lastSessionConfigRef.current = session
@@ -635,6 +689,7 @@ export function useRealtimeCall(): UseRealtimeCallIO {
           },
         })
         const ctx = new AudioContext()
+        await ctx.resume() // Ensure AudioContext is running
         const source = ctx.createMediaStreamSource(stream)
         const bufferSize = opts?.frameSize ?? 4096
         const processor = ctx.createScriptProcessor(bufferSize, 1, 1)
