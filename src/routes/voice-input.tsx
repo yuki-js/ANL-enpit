@@ -1,8 +1,6 @@
-import React from 'react';
-import VoiceInputScreen from '../components/screens/VoiceInputScreen';
+import { createFileRoute } from '@tanstack/react-router'
+import VoiceInputScreen from '../components/screens/VoiceInputScreen'
 
-const VoiceInputRoute: React.FC = () => {
-  return <VoiceInputScreen />;
-};
-
-export default VoiceInputRoute;
+export const Route = createFileRoute('/voice-input')({
+  component: VoiceInputScreen,
+})
