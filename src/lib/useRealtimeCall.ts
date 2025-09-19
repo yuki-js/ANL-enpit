@@ -32,6 +32,8 @@ export type MicStatus = 'off' | 'on' | 'muted'
 export interface RealtimeSessionConfig {
   instructions?: string
   temperature?: number
+  input_audio_format?: { type: string; sample_rate_hz: number }
+  turn_detection?: { type: string; silence_duration_ms?: number }
   // Extend with VAD, voice, formats, tools, etc.
 }
 
@@ -120,6 +122,19 @@ export function useRealtimeCall(): UseRealtimeCallIO {
 
   // WebSocket transport
   const wsRef = useRef<WebSocket | null>(null)
+  // Reconnect and retry state
+  const reconnectTimerRef = useRef<number | null>(null)
+  const retryAttemptRef = useRef(0)
+  const shouldReconnectRef = useRef(false) // true during an active call session
+  const manualDisconnectRef = useRef(false) // set true when endCall() is invoked
+  const lastCloseEventRef = useRef<{ code?: number; reason?: string } | null>(
+    null,
+  )
+
+  // Retry policy
+  const MAX_RETRIES = 5
+  const BASE_BACKOFF_MS = 500
+  const JITTER_MS = 250
 
   // Event handlers storage
   const handlersRef = useRef<RealtimeEventHandlers>({})
@@ -134,10 +149,13 @@ export function useRealtimeCall(): UseRealtimeCallIO {
 
   // Pending session.update (sent on open if provided at startCall)
   const pendingSessionRef = useRef<RealtimeSessionConfig | null>(null)
+  // Last known session config (re-applied after reconnect)
+  const lastSessionConfigRef = useRef<RealtimeSessionConfig | null>(null)
 
   // Helpers
   const generateId = () => {
-    const anyCrypto = typeof crypto !== 'undefined' ? (crypto as any) : undefined
+    const anyCrypto =
+      typeof crypto !== 'undefined' ? (crypto as any) : undefined
     if (anyCrypto && typeof anyCrypto.randomUUID === 'function') {
       return anyCrypto.randomUUID() as string
     }
@@ -175,13 +193,29 @@ export function useRealtimeCall(): UseRealtimeCallIO {
         sum += input[j]
         count++
       }
-      const sample = count > 0 ? sum / count : input[start] ?? 0
+      const sample = count > 0 ? sum / count : (input[start] ?? 0)
       let s = Math.max(-1, Math.min(1, sample))
       out[i] = s < 0 ? s * 0x8000 : s * 0x7fff
       pos = nextPos
       nextPos += ratio
     }
     return out.buffer
+  }
+
+  // Convert ArrayBuffer to base64 string
+  function abToBase64(buf: ArrayBuffer): string {
+    return btoa(String.fromCharCode(...new Uint8Array(buf)))
+  }
+
+  // Convert base64 string to ArrayBuffer
+  function base64ToAb(base64: string): ArrayBuffer {
+    const binary = atob(base64)
+    const len = binary.length
+    const bytes = new Uint8Array(len)
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    return bytes.buffer
   }
 
   const isOpen = () =>
@@ -212,13 +246,59 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     if (!payload || typeof payload !== 'object') return
     const t = payload.type
     switch (t) {
-      case 'text_delta': {
+      case 'response.output_text.delta': {
         const e: TextDeltaEvent = {
           type: 'text_delta',
           id: String(payload.id ?? ''),
           delta: String(payload.delta ?? ''),
         }
         handlersRef.current.onTextDelta?.(e)
+        break
+      }
+      case 'response.output_text.done': {
+        const e: ControlEvent = {
+          type: 'control',
+          action: 'text_done',
+          id: payload.id,
+        }
+        handlersRef.current.onControl?.(e)
+        break
+      }
+      case 'response.output_audio.delta': {
+        const audioBuf = base64ToAb(String(payload.delta ?? ''))
+        const e: AudioEvent = {
+          type: 'audio',
+          audioBuffer: audioBuf,
+        }
+        handlersRef.current.onAudio?.(e)
+        break
+      }
+      case 'response.output_audio.done': {
+        const e: ControlEvent = {
+          type: 'control',
+          action: 'audio_done',
+          id: payload.id,
+        }
+        handlersRef.current.onControl?.(e)
+        break
+      }
+      case 'response.completed': {
+        const e: ControlEvent = {
+          type: 'control',
+          action: 'completed',
+          id: payload.id,
+        }
+        handlersRef.current.onControl?.(e)
+        break
+      }
+      case 'error': {
+        const e: ControlEvent = {
+          type: 'control',
+          action: 'error',
+          id: payload.id,
+        }
+        handlersRef.current.onControl?.(e)
+        callOnError(new Error(String(payload.error ?? 'Unknown error')))
         break
       }
       case 'transcription': {
@@ -247,13 +327,59 @@ export function useRealtimeCall(): UseRealtimeCallIO {
   }
 
   // Public API: handlers
-  const setHandlers = useCallback((handlers: Partial<RealtimeEventHandlers>) => {
-    handlersRef.current = { ...handlersRef.current, ...handlers }
-  }, [])
+  const setHandlers = useCallback(
+    (handlers: Partial<RealtimeEventHandlers>) => {
+      handlersRef.current = { ...handlersRef.current, ...handlers }
+    },
+    [],
+  )
+
+  // Retry helpers
+  const isRetryableCloseCode = (code?: number) => {
+    if (code == null) return true
+    switch (code) {
+      case 1000: // normal
+        return false
+      case 1001: // going away
+      case 1006: // abnormal closure
+      case 1011: // internal error
+      case 1012: // service restart
+      case 1013: // try again later
+      case 1014: // bad gateway
+        return true
+      default:
+        return code >= 1011 || code === 1006 || code === 1001
+    }
+  }
+
+  const computeBackoffMs = (attempt: number) => {
+    const exp = Math.min(attempt, 6)
+    const base = BASE_BACKOFF_MS * Math.pow(2, exp)
+    const jitter = Math.floor(Math.random() * JITTER_MS)
+    return base + jitter
+  }
+
+  const clearReconnect = () => {
+    if (reconnectTimerRef.current != null) {
+      try {
+        clearTimeout(reconnectTimerRef.current)
+      } catch {}
+      reconnectTimerRef.current = null
+    }
+  }
 
   // Internal: connect WS
   const connect = useCallback(() => {
     setError(undefined)
+
+    // Prevent duplicate connections
+    if (
+      wsRef.current &&
+      (wsRef.current.readyState === WebSocket.OPEN ||
+        wsRef.current.readyState === WebSocket.CONNECTING)
+    ) {
+      return
+    }
 
     // Validate config first
     const v = configRef.current.validateAll()
@@ -284,6 +410,8 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     }
     wsRef.current = null
 
+    manualDisconnectRef.current = false
+
     setStatus('connecting')
 
     let ws: WebSocket
@@ -301,6 +429,9 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     ws.onopen = () => {
       if (wsRef.current !== ws) return
       setStatus('connected')
+      // Reset retry attempts and clear scheduled reconnects
+      retryAttemptRef.current = 0
+      clearReconnect()
       try {
         handlersRef.current.onOpen?.()
       } catch {
@@ -308,8 +439,36 @@ export function useRealtimeCall(): UseRealtimeCallIO {
       }
       // Flush pending session.update if provided at startCall
       if (pendingSessionRef.current) {
-        sendJSON({ type: 'session.update', session: pendingSessionRef.current })
+        const session = { ...pendingSessionRef.current }
+        if (!session.input_audio_format) {
+          session.input_audio_format = {
+            type: 'pcm16',
+            sample_rate_hz: TARGET_SAMPLE_RATE,
+          }
+        }
+        sendJSON({ type: 'session.update', session })
+        lastSessionConfigRef.current = session
         pendingSessionRef.current = null
+      } else if (lastSessionConfigRef.current) {
+        // Re-apply prior session config after reconnect
+        const session = { ...lastSessionConfigRef.current }
+        if (!session.input_audio_format) {
+          session.input_audio_format = {
+            type: 'pcm16',
+            sample_rate_hz: TARGET_SAMPLE_RATE,
+          }
+        }
+        sendJSON({ type: 'session.update', session })
+      } else {
+        // Send default session update
+        const session = {
+          input_audio_format: {
+            type: 'pcm16',
+            sample_rate_hz: TARGET_SAMPLE_RATE,
+          },
+        }
+        sendJSON({ type: 'session.update', session })
+        lastSessionConfigRef.current = session
       }
     }
 
@@ -345,17 +504,45 @@ export function useRealtimeCall(): UseRealtimeCallIO {
       setStatus('error')
       setError('websocket_error')
       callOnError(evt)
+      // Reconnect is decided in onclose
     }
 
     ws.onclose = (evt) => {
       if (wsRef.current === ws) {
         wsRef.current = null
       }
-      setStatus('disconnected')
+
+      lastCloseEventRef.current = { code: evt.code, reason: evt.reason }
+      const reasonText = (evt.reason || '').toString()
+      setError(
+        reasonText
+          ? `ws_closed:${evt.code} ${reasonText}`
+          : `ws_closed:${evt.code}`,
+      )
+
       try {
         handlersRef.current.onClose?.(evt.code, evt.reason)
       } catch {
         // ignore
+      }
+
+      const canRetry =
+        shouldReconnectRef.current &&
+        !manualDisconnectRef.current &&
+        isRetryableCloseCode(evt.code) &&
+        retryAttemptRef.current < MAX_RETRIES
+
+      if (canRetry) {
+        const delay = computeBackoffMs(retryAttemptRef.current)
+        retryAttemptRef.current += 1
+        setStatus('connecting')
+        clearReconnect()
+        reconnectTimerRef.current = window.setTimeout(() => {
+          if (!shouldReconnectRef.current) return
+          connect()
+        }, delay)
+      } else {
+        setStatus('disconnected')
       }
     }
   }, [])
@@ -404,12 +591,15 @@ export function useRealtimeCall(): UseRealtimeCallIO {
   }, [])
 
   const createResponse = useCallback((opts?: RealtimeResponseOptions) => {
-    const payload: any = { type: 'response.create' }
+    const payload: any = {
+      type: 'response.create',
+      response: { modalities: ['audio', 'text'] },
+    }
     if (opts) {
       if (typeof opts.instructions !== 'undefined')
-        payload.instructions = opts.instructions
+        payload.response.instructions = opts.instructions
       if (typeof opts.temperature !== 'undefined')
-        payload.temperature = opts.temperature
+        payload.response.temperature = opts.temperature
     }
     sendJSON(payload)
   }, [])
@@ -463,9 +653,15 @@ export function useRealtimeCall(): UseRealtimeCallIO {
             inRate,
             opts?.sampleRate ?? TARGET_SAMPLE_RATE,
           )
+          const base64Audio = abToBase64(outBuf)
           try {
-            // Send as binary frame (raw PCM16)
-            wsRef.current!.send(outBuf)
+            // Send as JSON with base64 audio
+            wsRef.current!.send(
+              JSON.stringify({
+                type: 'input_audio_buffer.append',
+                audio: base64Audio,
+              }),
+            )
           } catch (err) {
             setError(String(err))
             setStatus('error')
