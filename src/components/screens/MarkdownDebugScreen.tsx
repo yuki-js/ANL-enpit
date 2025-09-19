@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useLayoutEffect } from 'react'
 import { Streamdown } from 'streamdown'
 import { Panel } from '../ui/Panel/Panel'
 import { Text } from '../ui/Text/Text'
@@ -90,7 +90,8 @@ export default function MarkdownDebugScreen(): React.ReactElement {
   const runningRef = useRef<boolean>(false)
 
   // 単純な ID 生成
-  const genId = () => `mp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+  const genId = () =>
+    `mp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
   // 入力された markdown を擬似ストリーミングでパーツに分割して追加する
   // 実際はサーバから来る逐次チャンクを部分的に append する形になる
@@ -104,11 +105,14 @@ export default function MarkdownDebugScreen(): React.ReactElement {
     for (const line of lines) {
       if (!runningRef.current) break
       // 1行をさらに適度な長さのチャンクに分割
-      const chunkSize = 40
+      const chunkSize = 80
       for (let i = 0; i < line.length; i += chunkSize) {
         if (!runningRef.current) break
         const slice = line.slice(i, i + chunkSize)
-        const newPart: MessagePart = { id: genId(), text: slice + (i + chunkSize >= line.length ? '\n' : '') }
+        const newPart: MessagePart = {
+          id: genId(),
+          text: slice + (i + chunkSize >= line.length ? '\n' : ''),
+        }
         // 部分を逐次追加（Streamdown により不完全な Markdown でも安全にレンダリング）
         setParts((p) => [...p, newPart])
         // 表示のストリーム感を出すために少し待機
@@ -124,14 +128,16 @@ export default function MarkdownDebugScreen(): React.ReactElement {
     runningRef.current = false
   }
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
+    // StrictMode対策: useLayoutEffectはStrictModeでも1回だけ実行される
     // ページ表示時に自動でストリーミングを開始する（ボタン等は不要）
     // simulateStreaming は input の現在値を逐次 parts に流す
     // マウント時に自動起動
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {
+    ;(async () => {
       await simulateStreaming(input)
     })()
+
     // アンマウント時はストリーミングを停止
     return () => {
       runningRef.current = false
