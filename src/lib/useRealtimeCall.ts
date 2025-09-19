@@ -143,6 +143,9 @@ export function useRealtimeCall(): UseRealtimeCallIO {
   const [micStatus, setMicStatus] = useState<MicStatus>('off')
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
+  // Streaming audio playback queue and offset
+  const audioBufferQueueRef = useRef<Float32Array[]>([])
+  const nextAudioStartTimeRef = useRef<number>(0)
   const processorRef = useRef<ScriptProcessorNode | null>(null)
   const sourceNodeRef = useRef<MediaStreamAudioSourceNode | null>(null)
   const mutedRef = useRef<boolean>(false)
@@ -229,6 +232,54 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     return float32
   }
 
+  // Smoothly schedule PCM16 chunks for playback by chaining them back-to-back
+  function schedulePcm16Playback(pcm16Buf: ArrayBuffer): void {
+    const ctx = audioContextRef.current
+    if (!ctx) {
+      console.log('No AudioContext available')
+      return
+    }
+    const float32 = pcm16ToFloat32(pcm16Buf)
+    if (float32.length === 0) return
+    // Resume context if needed
+    if (ctx.state === 'suspended') {
+      try {
+        void ctx.resume()
+      } catch {}
+    }
+    // Initialize or clamp start time with small lookahead to avoid past scheduling
+    const lookahead = 0.02 // 20ms
+    if (nextAudioStartTimeRef.current <= ctx.currentTime) {
+      nextAudioStartTimeRef.current = ctx.currentTime + lookahead
+    }
+    // Create audio buffer and copy samples
+   const buffer = ctx.createBuffer(1, float32.length, TARGET_SAMPLE_RATE)
+    const ch0 = buffer.getChannelData(0)
+    ch0.set(float32)
+    // Create source and schedule at computed time
+    const source = ctx.createBufferSource()
+    source.buffer = buffer
+    source.connect(ctx.destination)
+    const startTime = nextAudioStartTimeRef.current
+    try {
+      source.start(startTime)
+    } catch {
+      try {
+        source.start()
+      } catch {}
+    }
+    // Advance pointer for next chunk
+    nextAudioStartTimeRef.current = startTime + buffer.duration
+    // Track for debugging
+    audioBufferQueueRef.current.push(float32)
+    console.log('Scheduled audio delta', {
+      bytes: pcm16Buf.byteLength,
+      samples: float32.length,
+      at: startTime,
+      dur: buffer.duration,
+    })
+  }
+
   const isOpen = () =>
     !!wsRef.current && wsRef.current.readyState === WebSocket.OPEN
 
@@ -279,40 +330,64 @@ export function useRealtimeCall(): UseRealtimeCallIO {
       }
       case 'response.output_audio.delta': {
         const audioBuf = base64ToAb(String(payload.delta ?? ''))
-        const float32 = pcm16ToFloat32(audioBuf)
         console.log(
           'Received audio delta, length:',
           audioBuf.byteLength,
           'samples:',
-          float32.length,
+          pcm16ToFloat32(audioBuf).length,
         )
-        // Play the audio stream
-        const ctx = audioContextRef.current
-        if (ctx) {
-          console.log('AudioContext state:', ctx.state)
-          if (ctx.state === 'suspended') {
-            ctx.resume().then(() => console.log('AudioContext resumed'))
-          }
-          const buffer = ctx.createBuffer(1, float32.length, TARGET_SAMPLE_RATE)
-          // Fix for TS type error: ensure float32 is a plain Float32Array
-          // Direct assignment to buffer channel data (works in all environments, avoids TS error)
-          for (let i = 0; i < float32.length; i++) {
-            buffer.getChannelData(0)[i] = float32[i]
-          }
-          const source = ctx.createBufferSource()
-          source.buffer = buffer
-          source.connect(ctx.destination)
-          source.start()
-          console.log('Started playing audio')
-        } else {
-          console.log('No AudioContext available')
-        }
+        // Schedule smooth, chained playback
+        schedulePcm16Playback(audioBuf)
         const e: AudioEvent & { rawType: string } = {
           type: 'audio',
           audioBuffer: audioBuf,
           rawType: t,
         }
         handlersRef.current.onAudio?.(e)
+        break
+      }
+      case 'response.audio.delta': {
+        const audioBuf = base64ToAb(String(payload.delta ?? ''))
+        schedulePcm16Playback(audioBuf)
+        const e: AudioEvent & { rawType: string } = {
+          type: 'audio',
+          audioBuffer: audioBuf,
+          rawType: t,
+        }
+        handlersRef.current.onAudio?.(e)
+        break
+      }
+      case 'response.audio.done': {
+        const e: ControlEvent & { rawType: string } = {
+          type: 'control',
+          action: 'audio_done',
+          id: payload.id,
+          rawType: t,
+        }
+        handlersRef.current.onControl?.(e)
+        break
+      }
+      case 'response.audio_transcript.delta': {
+        const e: TranscriptionEvent & { rawType: string } = {
+          type: 'transcription',
+          id: String(payload.id ?? ''),
+          text: String(payload.delta ?? ''),
+          rawType: t,
+        }
+        handlersRef.current.onTranscription?.(e)
+        break
+      }
+      case 'response.done': {
+        const e: ControlEvent & { rawType: string } = {
+          type: 'control',
+          action: 'completed',
+          id: payload.id,
+          rawType: t,
+        }
+        handlersRef.current.onControl?.(e)
+        // Reset scheduler for next turn to avoid stale offsets
+        nextAudioStartTimeRef.current = 0
+        audioBufferQueueRef.current = []
         break
       }
       case 'response.output_audio.done': {
@@ -771,6 +846,9 @@ export function useRealtimeCall(): UseRealtimeCallIO {
     } catch {}
 
     mediaStreamRef.current = null
+    // --- Reset audio streaming queue and offset ---
+    audioBufferQueueRef.current = []
+    nextAudioStartTimeRef.current = 0
     audioContextRef.current = null
     processorRef.current = null
     sourceNodeRef.current = null
