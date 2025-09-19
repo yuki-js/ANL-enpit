@@ -151,14 +151,15 @@
   overflow: visible;
 }
 
-/* Active (recording) state - uses IconButton .sent styles but add pulsing ring */
-.recordButton.sent {
+/* Active (recording) state for the record button (used with Button) */
+.recordActive {
   background: linear-gradient(135deg, #ff6b6b, #ff3b3b);
   color: white;
   transform: scale(1.02);
+  position: relative; /* ensure ::after positions correctly */
 }
 
-.recordButton.sent::after {
+.recordActive::after {
   content: '';
   position: absolute;
   left: 0;
